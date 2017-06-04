@@ -1,17 +1,8 @@
-import cv2
-
-cv2.namedWindow("preview")
-vc = cv2.VideoCapture(0)
-
-if vc.isOpened(): # try to get the first frame
-    rval, frame = vc.read()
-else:
-    rval = False
-
-while rval:
-    cv2.imshow("preview", frame)
-    rval, frame = vc.read()
-    key = cv2.waitKey(20)
-    if key == 27: # exit on ESC
-        break
-cv2.destroyWindow("preview")
+import pygame.camera
+pygame.camera.init()
+cam = pygame.camera.Camera(pygame.camera.list_cameras()[0])
+cam.start()
+img = cam.get_image()
+import pygame.image
+pygame.image.save(img, "photo.bmp")
+pygame.camera.quit()
