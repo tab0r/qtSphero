@@ -15,7 +15,7 @@ The goals are behavioral in nature, rather than statistic.
 - [Python.Swarms](https://github.com/elmar-hinz/Python.Swarms): Swarm simulation  
 - [kulka](https://github.com/karol-szuster/kulka): Sphero Python API
 - [SKImage](http://scikit-image.org/): Scikit Learn compatible image processing
-- [openCV]
+- [pygame](https://www.pygame.org/news): pygame.camera for webcam image capture
 - [Keras](https://keras.io/): Neural network frontend
 - [theano](https://github.com/Theano/Theano): Neural network backend
 
