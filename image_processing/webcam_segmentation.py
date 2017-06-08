@@ -12,61 +12,94 @@ from skimage.morphology import closing, square
 from skimage.color import label2rgb, rgb2gray
 from skimage.transform import downscale_local_mean
 
-# begin timing
-t0 = time.time()
+def capture_image():
+    t0 = time.time()
+    # # capture image from webcam
+    pygame.camera.init()
+    cam = pygame.camera.Camera(pygame.camera.list_cameras()[0])
+    cam.start()
+    img = cam.get_image()
+    pygame.image.save(img, "photo.bmp")
+    pygame.camera.quit()
 
-# # capture image from webcam
-# pygame.camera.init()
-# cam = pygame.camera.Camera(pygame.camera.list_cameras()[0])
-# cam.start()
-# img = cam.get_image()
-# pygame.image.save(img, "photo.bmp")
-# pygame.camera.quit()
+    t1 = time.time()
+    capture_time = t1-t0
+    print("Image capture time: ", capture_time)
 
-# begin segmentation process
-im_file = io.imread("photo.bmp")
-# scaled = downscale_local_mean(im_file, (1, 1, 1))
-# image = scaled[:, :, 2]
-img = rgb2gray(im_file)
-# io.imsave("images/webcam_test.png", image)
-image = exposure.adjust_gamma(img, 2)
-# Logarithmic
-# logarithmic_corrected = exposure.adjust_log(img, 1)
+    return capture_time
 
+def segment_photo_bmp():
+    # begin timing
+    t0 = time.time()
+    # begin segmentation process
+    # make sure there's an image to segment
+    try:
+        im_file = io.imread("photo.bmp")
+    except:
+        capture_image()
+    t1 = time.time()
+    # scaled = downscale_local_mean(im_file, (1, 1, 1))
+    # image = scaled[:, :, 2]
+    img = rgb2gray(im_file)
+    # io.imsave("images/webcam_test.png", image)
+    image = exposure.adjust_gamma(img, 2)
+    # Logarithmic
+    # logarithmic_corrected = exposure.adjust_log(img, 1)
 
-t1 = time.time()
-print("Image capture time: ", t1-t0)
+    # apply threshold
+    thresh = threshold_otsu(image)
+    bw = closing(image > thresh, square(5))
 
-# apply threshold
-thresh = threshold_otsu(image)
-bw = closing(image > thresh, square(5))
+    # remove artifacts connected to image border
+    cleared = clear_border(bw)
 
-# remove artifacts connected to image border
-cleared = clear_border(bw)
+    # label image regions
+    label_image = label(cleared)
+    t2 = time.time()
+    seg_time = t2 - t1
+    print("Segmentation time: ", t2 - t1)
 
-# label image regions
-label_image = label(cleared)
-t2 = time.time()
-print("Segmentation time: ", t2 - t1)
-image_label_overlay = label2rgb(label_image, image=image)
+    return label_image, image, t2 - t0
 
-fig, ax = plt.subplots(figsize=(10, 6))
-ax.imshow(image_label_overlay)
-
-for region in regionprops(label_image):
-    # take regions with large enough areas
-    if region.area >= 20:
-        # draw rectangle around segmented coins
+def region_centroids(labelled_image, min_area = 20):
+    centroids = []
+    for region in regionprops(labelled_image):
+        # calculate centroid
         minr, minc, maxr, maxc = region.bbox
-        rect = mpatches.Rectangle((minc, minr), maxc - minc, maxr - minr, fill=False, edgecolor='red', linewidth=2)
-        ax.add_patch(rect)
         centroid = (minc + 0.5*(maxc - minc), minr + 0.5*(maxr - minr))
-        circ = mpatches.Circle(centroid, radius = 5, fill=False, edgecolor='blue', linewidth=2)
-        ax.add_patch(circ)
         print("Centroid of blob: ", centroid)
-ax.set_axis_off()
-plt.tight_layout()
-plt.savefig("images/webcam_seg0.png")
-t3 = time.time()
-print("Save time: ", t3 - t2)
-print("Total wall time: ", t3 - t0)
+        centroids.append(centroid)
+    return centroids
+
+def filter_regions(labelled_image, min_area = 20):
+    filtered_labels = []
+    for region in regionprops(labelled_image):
+        # take regions with large enough areas
+        if region.area >= min_area:
+            filtered_labels.append(region)
+    return filtered_labels
+
+def save_segmented_image(regions, image):
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.imshow(image)
+
+    for region in regions:
+            # draw rectangle around segmented coins
+            minr, minc, maxr, maxc = region.bbox
+            rect = mpatches.Rectangle((minc, minr), maxc - minc, maxr - minr, fill=False, edgecolor='red', linewidth=2)
+            ax.add_patch(rect)
+            centroid = (minc + 0.5*(maxc - minc), minr + 0.5*(maxr - minr))
+            circ = mpatches.Circle(centroid, radius = 5, fill=False, edgecolor='blue', linewidth=2)
+            ax.add_patch(circ)
+
+    ax.set_axis_off()
+    plt.tight_layout()
+    plt.savefig("images/webcam_seg0.png")
+
+if __name__ == "__main__":
+    _ = capture_image()
+    labelled_image, image, _ = segment_photo_bmp()
+    filtered_regions = filter_regions(labelled_image, min_area = 2)
+    image_label_overlay = label2rgb(labelled_image, image=image)
+    save_segmented_image(filtered_regions, image_label_overlay)
+    centroids = region_centroids(labelled_image)
