@@ -1,4 +1,3 @@
-import theano
 # in this, we attempt to train a Sphero to stay in the center of our view.
 import os
 import sys
@@ -15,11 +14,11 @@ from webcam_segmentation import *
 sys.path.append(os.path.abspath("../../kulka"))
 from kulka import Kulka
 
-# neural network imports
-from keras.utils import np_utils
-from keras.models import Sequential
-from keras.layers.core import Dense
-from keras.optimizers import sgd, RMSprop, Adagrad, Adam
+# # neural network imports
+# from keras.utils import np_utils
+# from keras.models import Sequential
+# from keras.layers.core import Dense
+# from keras.optimizers import sgd, RMSprop, Adagrad, Adam
 
 def show_cv(regions, image, filename = "test"):
     '''
@@ -140,38 +139,38 @@ def display_game(sphero, cam, n = 5):
         display.clear_output(wait=True);
         display.display(step_game(sphero, cam));
 
-def baseline_model(optimizer = Adam(),
-                    layers = [{"size":20,"activation":"relu"}]):
-    # four inputs - each coordinate
-    inputs = 4
-    # seven outputs - one for each action
-    # going with a hexagon of unit movements since this is
-    # discritized by our structure
-    num_outputs = 7
-    # prepare the navigator model
-    model = Sequential()
-    # initial inputs
-    l = list(layers)
-    l0 = l[0]
-    del l[0]
-    model.add(Dense(l0['size'],
-                    input_dim = inputs,
-                    activation = l0['activation']))
-    # the hidden layers
-    for layer in l:
-        model.add(Dense(layer['size'], activation=layer['activation']))
-    # the output layer
-    model.add(Dense(num_outputs, activation='linear'))
-    model.compile(optimizer = optimizer,
-                    loss = "mean_squared_error")
-    return model
+# def baseline_model(optimizer = Adam(),
+#                     layers = [{"size":20,"activation":"relu"}]):
+#     # four inputs - each coordinate
+#     inputs = 4
+#     # seven outputs - one for each action
+#     # going with a hexagon of unit movements since this is
+#     # discritized by our structure
+#     num_outputs = 7
+#     # prepare the navigator model
+#     model = Sequential()
+#     # initial inputs
+#     l = list(layers)
+#     l0 = l[0]
+#     del l[0]
+#     model.add(Dense(l0['size'],
+#                     input_dim = inputs,
+#                     activation = l0['activation']))
+#     # the hidden layers
+#     for layer in l:
+#         model.add(Dense(layer['size'], activation=layer['activation']))
+#     # the output layer
+#     model.add(Dense(num_outputs, activation='linear'))
+#     model.compile(optimizer = optimizer,
+#                     loss = "mean_squared_error")
+#     return model
 
 def play_game(addrs = ['68:86:E7:06:FD:1D']):
     with Kulka(addrs[0]) as kulka:
         log = []
         kulka.set_inactivity_timeout(300)
         cam = cam_setup()
-        model = baseline_model()
+        model = None #baseline_model()
         # inputs number of rounds
         for i in range(5):
             # input turns for this round

@@ -16,7 +16,8 @@ def capture_image():
     t0 = time.time()
     # # capture image from webcam
     pygame.camera.init()
-    cam = pygame.camera.Camera(pygame.camera.list_cameras()[0])
+    my_cam = pygame.camera.list_cameras().pop)()
+    cam = pygame.camera.Camera(my_cam)
     cam.start()
     img = cam.get_image()
     pygame.image.save(img, "photo.bmp")
