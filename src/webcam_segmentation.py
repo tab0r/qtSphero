@@ -14,8 +14,7 @@ from skimage.transform import downscale_local_mean
 
 def cam_setup():
     pygame.camera.init()
-    cam = pygame.camera.Camera(pygame.camera.list_cameras().pop(), \
-                                        (640, 480), "RGB")
+    cam = pygame.camera.Camera(pygame.camera.list_cameras()[0])
     cam.start()
     return cam
 
