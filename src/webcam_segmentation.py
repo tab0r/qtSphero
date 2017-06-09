@@ -12,9 +12,13 @@ from skimage.morphology import closing, square
 from skimage.color import label2rgb, rgb2gray
 from skimage.transform import downscale_local_mean
 
-def cam_setup():
+def cam_setup(i = 0):
     pygame.camera.init()
-    cam = pygame.camera.Camera(pygame.camera.list_cameras()[0])
+    if i == 0:
+        cam = pygame.camera.Camera(pygame.camera.list_cameras()[0])
+    else:
+        cam = pygame.camera.Camera(pygame.camera.list_cameras()[1],\
+                                            (640, 480), "YUV")
     cam.start()
     return cam
 
@@ -60,10 +64,10 @@ def segment_photo_bmp():
     bw = closing(image > thresh, square(5))
 
     # remove artifacts connected to image border
-    cleared = clear_border(bw)
+    # cleared = clear_border(bw)
 
     # label image regions
-    label_image = label(cleared)
+    label_image = label(bw)
     t2 = time.time()
     seg_time = t2 - t1
     # print("Segmentation time: ", t2 - t1)
@@ -81,11 +85,11 @@ def region_centroids(labelled_image, min_area = 20):
             centroids.append(centroid)
     return centroids
 
-def filter_regions(labelled_image, min_area = 20):
+def filter_regions(labelled_image, min_area = 20, max_area = 4000):
     filtered_labels = []
     for region in regionprops(labelled_image):
         # take regions with large enough areas
-        if region.area >= min_area:
+        if (region.area >= min_area) and (region.area < max_area):
             filtered_labels.append(region)
     return filtered_labels
 

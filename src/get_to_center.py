@@ -1,9 +1,12 @@
 # in this, we attempt to train a Sphero to stay in the center of our view.
-import os
-import sys
-import time
+import os, sys, matplotlib, time, pdb, pickle
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
+import numpy as np
+
+import matplotlib.backends.backend_agg as agg
+from pygame.locals import *
 
 from IPython import display
 from scipy.spatial.distance import euclidean as dist_e
@@ -20,12 +23,13 @@ from keras.models import Sequential
 from keras.layers.core import Dense
 from keras.optimizers import sgd, RMSprop, Adagrad, Adam
 
-def get_cv(regions, image, filename = "test"):
+def observe_state(regions, image, filename = "last_frame"):
     '''
     IN: regions of an image, an image to display with it
     OUT: the position and goal of the Sphero
     '''
-    fig, ax = plt.subplots(figsize=(10, 6))
+    fig, ax = plt.subplots(figsize=(8, 6))
+    # ax = fig.gca()
     ax.imshow(image)
 
     goal = (320, 240)
@@ -51,74 +55,72 @@ def get_cv(regions, image, filename = "test"):
     output = []
     if len(centroids) > 0:
         distance = dist_e(goal, centroids[0])
-        output.append(centroids[0])
-        output.append(goal)
+        state = list(centroids[0])
+        # state.extend(centroids[0])
         if distance < 100.0:
             reward = (100.0 - distance) / 100
         else:
             reward = -0.01
     else:
+        state = [0,0]
         distance = 0.00
         reward = 0.00
+    output.append(state)
     output.append(reward)
+    output.append(distance)
     dist_str = "Distance: " + "{0:.2f}".format(distance)
+    # output.append(dist_str)
     reward_str = "Reward: " + "{0:.2f}".format(reward)
+    # output.append(reward_str)
     plt.title(reward_str)
     plt.title(dist_str, loc="left")
     plt.tight_layout()
     # plt.show()
-    return plt, output
+    plt.savefig(filename + ".png")
+    plt.close()
+    return output
 
-def plot_cv(regions, image, filename = "test"):
-    plt, out = get_cv(regions, image, filename)
-    plt.show()
-    return out
-
-def step_game(sphero, cam, model=None, notebook = False):
-    # kulka.set_rgb(0, 0, 0xFF)
-    # time.sleep(0.1)
+def step_game(sphero, cam, model = None, last_input = None, last_choice = None):
     _ = capture_image(cam)
     labelled_image, image, _ = segment_photo_bmp()
     filtered_regions = filter_regions(labelled_image, min_area = 500)
-    if notebook == True:
-        data = plot_cv(filtered_regions, image)
+    data = observe_state(filtered_regions, image)
+    print("CV data: ", data)
+    # special sauce goes here
+    if model!=None and data[0]!=[0,0]:
+        inputs = np.array(data[0]).reshape(1, 2)
+        reward = data[1]
+        predicts = model.predict(inputs)
+        distance = data[2]
+        if (last_input != None) and (last_choice != None):
+            # pdb.set_trace()
+            target = np.zeros(5)
+            target[last_choice] = reward + predicts[0][last_choice]
+            model.train_on_batch(last_input, np.array(target).reshape(1,5))
     else:
-        plt, data = get_cv(filter_regions, image)
-    if len(data) == 2:
-        # special sauce goes here
-        if model!=None:
-            inputs = data
-            predicts = model.predict(data)
-            # direction = out[0]*360
-            # speed = out[1]*60
-        else:
-            direction = randint(0, 359)
-            speed = randint(0, 45)
-            inputs.append("random")
-    #     kulka.roll(speed, direction)
-    # kulka.set_rgb(0, 0, 0)
-    # time.sleep(0.1)
-    # kulka.set_rgb(0xFF, 0, 0)
-    if notebook == False:
-        return inputs, predicts, plt
-
-def notebook_game(cam, sphero = None, n = 5):
-    # with Kulka(addrs[0]) as kulka:
-    log = []
-    # kulka.set_inactivity_timeout(300)
-    cam = cam_setup()
-    model = baseline_model()
-    # inputs number of rounds
-    for i in range(n):
-        display.clear_output(wait=True);
-        display.display(step_game(sphero, cam, notebook = True));
-    # kulka.close()
-    cam_quit(cam)
+        inputs = data
+        predicts = "none"
+        reward = "none"
+        distance = "none"
+        choice = randint(0, 4)
+        predicts = np.zeros(5)
+        predicts[choice] = 1
+    print("Inputs: ", inputs)
+    print("Q-predicts: ", predicts)
+    print("Reward: ", reward)
+    print("Distance: ", distance)
+    if sphero != None:
+        choice = np.argmax(predicts)
+        if choice != 4:
+            direction = choice * 90
+            speed = 30
+            sphero.roll(speed, direction)
+    return inputs, predicts, reward, distance
 
 def baseline_model(optimizer = Adam(),
                     layers = [{"size":20,"activation":"relu"}]):
-    # four inputs - each coordinate
-    inputs = 4
+    # two inputs - each coordinate
+    inputs = 2
     # five outputs - one for each action
     # going with a square of unit movements since this is
     # discritized by our structure
@@ -141,26 +143,50 @@ def baseline_model(optimizer = Adam(),
                     loss = "mean_squared_error")
     return model
 
-def play_game(addrs = ['68:86:E7:06:FD:1D']):
-    # with Kulka(addrs[0]) as kulka:
-    sphero = None
-    log = []
-    # kulka.set_inactivity_timeout(300)
-    cam = cam_setup()
-    model = baseline_model()
-    # inputs number of rounds
-    for i in range(5):
-        # input turns for this round
-        log = step_game(sphero, cam, model = model)
-        log.append([log[0], log[1]])
-    # kulka.close()
-    cam_quit(cam)
-    return log
+#'68:86:E7:06:FD:1D',
+def pygame_play(n = 10, addrs = ['68:86:E7:07:07:6B', '68:86:E7:08:0E:DF']):
+    pygame.display.init()
+    screen = pygame.display.set_mode((800, 600))
+    white = (255, 64, 64)
+    if os.path.isfile('/models/sphero_0.pkl') == True:
+        model = pickle.load(open( "/models/sphero_0.pkl", "rb" ))
+    else:
+        model = baseline_model()
+    for addr in addrs:
+        print("Bringing Sphero online")
+        with Kulka(addr) as sphero:
+            print("Sphero online!")
+            sphero.set_rgb(0xFF, 0xFF, 0xFF)
+            # sphero.set_rgb(0, 0, 0)
+            log = []
+            sphero.set_inactivity_timeout(300)
+            cam = cam_setup(i = 1)
+            log_i = step_game(sphero, cam, model = model)
+            img = pygame.image.load('last_frame.png')
+            screen.fill((white))
+            screen.blit(img,(0,0))
+            pygame.display.flip()
+            log.append(log_i)
+            for i in range(n-1):
+                log_i = step_game(sphero, cam, model = model, \
+                    last_input = np.array(log[i][0][0]).reshape(1,2), \
+                    last_choice = np.argmax(log[i][1]))
+                img = pygame.image.load('last_frame.png')
+                screen.fill((white))
+                screen.blit(img,(0,0))
+                pygame.display.flip()
+                log.append(log_i)
+        sphero.close()
+        cam_quit(cam)
+        pickle.dump( model, open( "models/sphero_0.pkl", "wb" ) )
 
-if __name__ == "__main__":
-    cam = cam_setup()
+def one_image(i = 1):
+    cam = cam_setup(i)
     _ = capture_image(cam)
     labelled_image, image, _ = segment_photo_bmp()
     filtered_regions = filter_regions(labelled_image, min_area = 500)
-    plot_cv(filtered_regions, image)
+    observe_state(filtered_regions, image)
     cam_quit(cam)
+
+if __name__ == "__main__":
+    one_image()
