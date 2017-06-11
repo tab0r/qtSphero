@@ -32,10 +32,10 @@ def observe_state(regions, image, filename = "last_frame"):
     # ax = fig.gca()
     ax.imshow(image)
 
-    goal = (320, 240)
-    circ = mpatches.Circle(goal, radius = 5, fill=False, edgecolor='red', linewidth=2)
+    goal = (20, 15)
+    circ = mpatches.Circle(goal, radius = 1, fill=False, edgecolor='red', linewidth=2)
     ax.add_patch(circ)
-    circ = mpatches.Circle(goal, radius = 10, fill=False, edgecolor='blue', linewidth=2)
+    circ = mpatches.Circle(goal, radius = 2, fill=False, edgecolor='blue', linewidth=2)
     ax.add_patch(circ)
 
     centroids = []
@@ -57,8 +57,8 @@ def observe_state(regions, image, filename = "last_frame"):
         distance = dist_e(goal, centroids[0])
         state = list(centroids[0])
         # state.extend(centroids[0])
-        if distance < 100.0:
-            reward = (100.0 - distance) / 100
+        if distance < 10.0:
+            reward = (10.0 - distance) / 10
         else:
             reward = -0.01
     else:
@@ -83,12 +83,18 @@ def observe_state(regions, image, filename = "last_frame"):
 def step_game(sphero, cam, model = None, last_input = None, last_choice = None):
     _ = capture_image(cam)
     labelled_image, image, _ = segment_photo_bmp()
-    filtered_regions = filter_regions(labelled_image, min_area = 500)
+    filtered_regions = filter_regions(labelled_image)
     data = observe_state(filtered_regions, image)
     print("CV data: ", data)
     # special sauce goes here
-    if model!=None and data[0]!=[0,0]:
-        inputs = np.array(data[0]).reshape(1, 2)
+    if model!=None:
+        coord_est = data[0]
+        pdb.set_trace()
+        camera_matrix = image
+        # append those two here, feed it as input
+        # or just use camera?
+        pre_input = image
+        inputs = np.array(pre_input).reshape(1, 1200)
         reward = data[1]
         predicts = model.predict(inputs)
         distance = data[2]
@@ -118,9 +124,9 @@ def step_game(sphero, cam, model = None, last_input = None, last_choice = None):
     return inputs, predicts, reward, distance
 
 def baseline_model(optimizer = Adam(),
-                    layers = [{"size":20,"activation":"relu"}]):
+                    layers = [{"size":80,"activation":"relu"}]):
     # two inputs - each coordinate
-    inputs = 2
+    inputs = 1200
     # five outputs - one for each action
     # going with a square of unit movements since this is
     # discritized by our structure
@@ -143,8 +149,8 @@ def baseline_model(optimizer = Adam(),
                     loss = "mean_squared_error")
     return model
 
-#'68:86:E7:06:FD:1D',
-def pygame_play(n = 10, addrs = ['68:86:E7:07:07:6B', '68:86:E7:08:0E:DF']):
+# '68:86:E7:06:FD:1D', '68:86:E7:07:07:6B', '68:86:E7:08:0E:DF'
+def pygame_play(n = 10, addrs = []):
     pygame.display.init()
     screen = pygame.display.set_mode((800, 600))
     white = (255, 64, 64)
@@ -169,7 +175,7 @@ def pygame_play(n = 10, addrs = ['68:86:E7:07:07:6B', '68:86:E7:08:0E:DF']):
             log.append(log_i)
             for i in range(n-1):
                 log_i = step_game(sphero, cam, model = model, \
-                    last_input = np.array(log[i][0][0]).reshape(1,2), \
+                    last_input = np.array(log[i][0][0]).reshape(1,1200), \
                     last_choice = np.argmax(log[i][1]))
                 img = pygame.image.load('last_frame.png')
                 screen.fill((white))
@@ -178,15 +184,16 @@ def pygame_play(n = 10, addrs = ['68:86:E7:07:07:6B', '68:86:E7:08:0E:DF']):
                 log.append(log_i)
         sphero.close()
         cam_quit(cam)
-        pickle.dump( model, open( "models/sphero_0.pkl", "wb" ) )
+        pickle.dump(model, open( "models/sphero_0.pkl", "wb" ) )
 
 def one_image(i = 1):
     cam = cam_setup(i)
     _ = capture_image(cam)
     labelled_image, image, _ = segment_photo_bmp()
-    filtered_regions = filter_regions(labelled_image, min_area = 500)
+    filtered_regions = filter_regions(labelled_image)
     observe_state(filtered_regions, image)
     cam_quit(cam)
 
 if __name__ == "__main__":
     one_image()
+    addrs = ['68:86:E7:06:FD:1D', '68:86:E7:07:07:6B', '68:86:E7:08:0E:DF']

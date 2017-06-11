@@ -18,7 +18,7 @@ def cam_setup(i = 0):
         cam = pygame.camera.Camera(pygame.camera.list_cameras()[0])
     else:
         cam = pygame.camera.Camera(pygame.camera.list_cameras()[1],\
-                                            (640, 480), "YUV")
+                                            (640, 480), "RGB")
     cam.start()
     return cam
 
@@ -51,17 +51,18 @@ def segment_photo_bmp():
     except:
         capture_image()
     t1 = time.time()
-    # scaled = downscale_local_mean(im_file, (1, 1, 1))
     # image = scaled[:, :, 2]
     img = rgb2gray(im_file)
-    # io.imsave("images/webcam_test.png", image)
-    image = exposure.adjust_gamma(img, 2)
+    scaled = downscale_local_mean(img, (16, 16))
+    image = exposure.adjust_gamma(scaled, 10)
     # Logarithmic
-    # logarithmic_corrected = exposure.adjust_log(img, 1)
+    # image = exposure.adjust_log(scaled, 5)
+    # image = scaled
 
+    # io.imsave("webcam_test.png", image)
     # apply threshold
     thresh = threshold_otsu(image)
-    bw = closing(image > thresh, square(5))
+    bw = closing(image > thresh, square(1))
 
     # remove artifacts connected to image border
     # cleared = clear_border(bw)
@@ -85,7 +86,7 @@ def region_centroids(labelled_image, min_area = 20):
             centroids.append(centroid)
     return centroids
 
-def filter_regions(labelled_image, min_area = 20, max_area = 4000):
+def filter_regions(labelled_image, min_area = 1, max_area = 300):
     filtered_labels = []
     for region in regionprops(labelled_image):
         # take regions with large enough areas
@@ -120,23 +121,23 @@ def show_segmented_image(regions, image, filename = "test"):
             rect = mpatches.Rectangle((minc, minr), maxc - minc, maxr - minr, fill=False, edgecolor='red', linewidth=2)
             ax.add_patch(rect)
             centroid = (minc + 0.5*(maxc - minc), minr + 0.5*(maxr - minr))
-            circ = mpatches.Circle(centroid, radius = 5, fill=False, edgecolor='blue', linewidth=2)
+            circ = mpatches.Circle(centroid, radius = 3, fill=False, edgecolor='blue', linewidth=2)
             ax.add_patch(circ)
 
     ax.set_axis_off()
     plt.tight_layout()
     plt.show()
 
-def main(n = 3):
-    cam = cam_setup()
-    for i in range(3):
+def main(n = 3, i = 0):
+    cam = cam_setup(i)
+    for i in range(n):
         _ = capture_image(cam)
         labelled_image, image, _ = segment_photo_bmp()
-        filtered_regions = filter_regions(labelled_image, min_area = 2)
-        image_label_overlay = label2rgb(labelled_image, image=image)
-        show_segmented_image(filtered_regions, image_label_overlay)
+        filtered_regions = filter_regions(labelled_image)
+        # image_label_overlay = label2rgb(labelled_image, image=image)
+        show_segmented_image(filtered_regions, image)
         centroids = region_centroids(labelled_image)
     cam_quit(cam)
 
 if __name__ == "__main__":
-    main(3)
+    main(1, i = 1)
