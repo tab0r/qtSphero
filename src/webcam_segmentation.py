@@ -73,7 +73,7 @@ def segment_photo_bmp():
     seg_time = t2 - t1
     # print("Segmentation time: ", t2 - t1)
 
-    return label_image, image, t2 - t0
+    return label_image, scaled, t2 - t0
 
 def region_centroids(labelled_image, min_area = 20):
     centroids = []

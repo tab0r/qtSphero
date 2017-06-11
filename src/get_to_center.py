@@ -46,7 +46,7 @@ def observe_state(regions, image, filename = "last_frame"):
             ax.add_patch(rect)
             centroid = (minc + 0.5*(maxc - minc), minr + 0.5*(maxr - minr))
             centroids.append(centroid)
-            circ = mpatches.Circle(centroid, radius = 5, fill=False, edgecolor='blue', linewidth=2)
+            circ = mpatches.Circle(centroid, radius = 2, fill=False, edgecolor='blue', linewidth=2)
             ax.add_patch(circ)
             arrow = mpatches.FancyArrowPatch(goal, centroid, color = 'yellow')
             ax.add_patch(arrow)
@@ -80,7 +80,7 @@ def observe_state(regions, image, filename = "last_frame"):
     plt.close()
     return output
 
-def step_game(sphero, cam, model = None, last_input = None, last_choice = None):
+def step_game(sphero, cam, e = 0.1, model = None, last_input = None, last_choice = None):
     _ = capture_image(cam)
     labelled_image, image, _ = segment_photo_bmp()
     filtered_regions = filter_regions(labelled_image)
@@ -89,7 +89,7 @@ def step_game(sphero, cam, model = None, last_input = None, last_choice = None):
     # special sauce goes here
     if model!=None:
         coord_est = data[0]
-        pdb.set_trace()
+        # pdb.set_trace()
         camera_matrix = image
         # append those two here, feed it as input
         # or just use camera?
@@ -112,15 +112,17 @@ def step_game(sphero, cam, model = None, last_input = None, last_choice = None):
         predicts = np.zeros(5)
         predicts[choice] = 1
     print("Inputs: ", inputs)
-    print("Q-predicts: ", predicts)
+    print("Q-choice: ", np.argmax(predicts))
     print("Reward: ", reward)
     print("Distance: ", distance)
     if sphero != None:
         choice = np.argmax(predicts)
-        if choice != 4:
-            direction = choice * 90
-            speed = 30
-            sphero.roll(speed, direction)
+        if np.random.rand() < e:
+            choice = randint(0,4)
+            if choice != 4:
+                direction = choice * 90
+                speed = 28
+                sphero.roll(speed, direction)
     return inputs, predicts, reward, distance
 
 def baseline_model(optimizer = Adam(),
@@ -150,7 +152,7 @@ def baseline_model(optimizer = Adam(),
     return model
 
 # '68:86:E7:06:FD:1D', '68:86:E7:07:07:6B', '68:86:E7:08:0E:DF'
-def pygame_play(n = 10, addrs = []):
+def pygame_play(cam, addrs, n = 10, episodes = 10):
     pygame.display.init()
     screen = pygame.display.set_mode((800, 600))
     white = (255, 64, 64)
@@ -158,33 +160,48 @@ def pygame_play(n = 10, addrs = []):
         model = pickle.load(open( "/models/sphero_0.pkl", "rb" ))
     else:
         model = baseline_model()
-    for addr in addrs:
-        print("Bringing Sphero online")
-        with Kulka(addr) as sphero:
-            print("Sphero online!")
-            sphero.set_rgb(0xFF, 0xFF, 0xFF)
-            # sphero.set_rgb(0, 0, 0)
-            log = []
-            sphero.set_inactivity_timeout(300)
-            cam = cam_setup(i = 1)
-            log_i = step_game(sphero, cam, model = model)
-            img = pygame.image.load('last_frame.png')
-            screen.fill((white))
-            screen.blit(img,(0,0))
-            pygame.display.flip()
-            log.append(log_i)
-            for i in range(n-1):
-                log_i = step_game(sphero, cam, model = model, \
-                    last_input = np.array(log[i][0][0]).reshape(1,1200), \
-                    last_choice = np.argmax(log[i][1]))
-                img = pygame.image.load('last_frame.png')
-                screen.fill((white))
-                screen.blit(img,(0,0))
-                pygame.display.flip()
-                log.append(log_i)
+    # for addr in addrs:
+    print("Bringing Sphero online")
+    spheros = []
+    with Kulka(addrs[0]) as sphero0:
+        print("Sphero 0 online!")
+        spheros.append(sphero0)
+        sphero0.set_rgb(0, 0, 0x0F)
+        with Kulka(addrs[1]) as sphero1:
+            print("Sphero 1 online!")
+            spheros.append(sphero1)
+            sphero1.set_rgb(0, 0, 0x0F)
+            with Kulka(addrs[2]) as sphero2:
+                print("Sphero 2 online!")
+                spheros.append(sphero2)
+                sphero2.set_rgb(0, 0, 0x0F)
+                for _ in range(episodes):
+                    for sphero in spheros:
+                        sphero.set_rgb(0xFF, 0xFF, 0xFF)
+                        # sphero.set_rgb(0, 0, 0)
+                        log = []
+                        sphero.set_inactivity_timeout(3600)
+                        # cam = cam_setup(i = 1)
+                        log_i = step_game(sphero, cam, e = 0.5, model = model)
+                        img = pygame.image.load('last_frame.png')
+                        screen.fill((white))
+                        screen.blit(img,(0,0))
+                        pygame.display.flip()
+                        log.append(log_i)
+                        for i in range(n-1):
+                            log_i = step_game(sphero, cam, model = model, \
+                                last_input = np.array(log[i][0][0]).reshape(1,1200), \
+                                last_choice = np.argmax(log[i][1]))
+                            img = pygame.image.load('last_frame.png')
+                            screen.fill((white))
+                            screen.blit(img,(0,0))
+                            pygame.display.flip()
+                            log.append(log_i)
+                        sphero.set_rgb(0, 0, 0x0F)
+    for sphero in spheros:
         sphero.close()
-        cam_quit(cam)
-        pickle.dump(model, open( "models/sphero_0.pkl", "wb" ) )
+    # cam_quit(cam)
+    # pickle.dump(model, open( "models/sphero_0.pkl", "wb" ) )
 
 def one_image(i = 1):
     cam = cam_setup(i)
@@ -197,3 +214,4 @@ def one_image(i = 1):
 if __name__ == "__main__":
     one_image()
     addrs = ['68:86:E7:06:FD:1D', '68:86:E7:07:07:6B', '68:86:E7:08:0E:DF']
+    cam = cam_setup(1)
