@@ -19,7 +19,7 @@ from kulka import Kulka
 
 # neural network imports
 from keras.utils import np_utils
-from keras.models import Sequential
+from keras.models import Sequential, load_model
 from keras.layers.core import Dense
 from keras.optimizers import sgd, RMSprop, Adagrad, Adam
 
@@ -98,20 +98,23 @@ def step_game(sphero, cam, e = 0.1, model = None, last_input = None, last_choice
         reward = data[1]
         predicts = model.predict(inputs)
         distance = data[2]
+        loss = 0
         if (last_input != None) and (last_choice != None):
             # pdb.set_trace()
             target = np.zeros(5)
             target[last_choice] = reward + predicts[0][last_choice]
-            model.train_on_batch(last_input, np.array(target).reshape(1,5))
+            loss += model.train_on_batch(last_input, np.array(target).reshape(1,5))
     else:
         inputs = data
+        loss = 0
         predicts = "none"
         reward = "none"
         distance = "none"
         choice = randint(0, 4)
         predicts = np.zeros(5)
-        predicts[choice] = 1
-    print("Inputs: ", inputs)
+        predicts[choice] = 0.1
+    # print("Inputs: ", inputs)
+    print("Loss: ", loss)
     print("Q-choice: ", np.argmax(predicts))
     print("Reward: ", reward)
     print("Distance: ", distance)
@@ -121,7 +124,7 @@ def step_game(sphero, cam, e = 0.1, model = None, last_input = None, last_choice
             choice = randint(0,4)
             if choice != 4:
                 direction = choice * 90
-                speed = 28
+                speed = 30
                 sphero.roll(speed, direction)
     return inputs, predicts, reward, distance
 
@@ -152,56 +155,59 @@ def baseline_model(optimizer = Adam(),
     return model
 
 # '68:86:E7:06:FD:1D', '68:86:E7:07:07:6B', '68:86:E7:08:0E:DF'
-def pygame_play(cam, addrs, n = 10, episodes = 10):
+def pygame_play(cam, addr, n = 10, episodes = 10):
     pygame.display.init()
     screen = pygame.display.set_mode((800, 600))
     white = (255, 64, 64)
-    if os.path.isfile('/models/sphero_0.pkl') == True:
-        model = pickle.load(open( "/models/sphero_0.pkl", "rb" ))
+    if os.path.isfile('models/sphero_0.h5') == True:
+        model = load_model( "models/sphero_0.h5")
+        print("Saved model loaded")
     else:
         model = baseline_model()
     # for addr in addrs:
     print("Bringing Sphero online")
-    spheros = []
-    with Kulka(addrs[0]) as sphero0:
-        print("Sphero 0 online!")
-        spheros.append(sphero0)
-        sphero0.set_rgb(0, 0, 0x0F)
-        with Kulka(addrs[1]) as sphero1:
-            print("Sphero 1 online!")
-            spheros.append(sphero1)
-            sphero1.set_rgb(0, 0, 0x0F)
-            with Kulka(addrs[2]) as sphero2:
-                print("Sphero 2 online!")
-                spheros.append(sphero2)
-                sphero2.set_rgb(0, 0, 0x0F)
-                for _ in range(episodes):
-                    for sphero in spheros:
-                        sphero.set_rgb(0xFF, 0xFF, 0xFF)
-                        # sphero.set_rgb(0, 0, 0)
-                        log = []
-                        sphero.set_inactivity_timeout(3600)
-                        # cam = cam_setup(i = 1)
-                        log_i = step_game(sphero, cam, e = 0.5, model = model)
-                        img = pygame.image.load('last_frame.png')
-                        screen.fill((white))
-                        screen.blit(img,(0,0))
-                        pygame.display.flip()
-                        log.append(log_i)
-                        for i in range(n-1):
-                            log_i = step_game(sphero, cam, model = model, \
-                                last_input = np.array(log[i][0][0]).reshape(1,1200), \
-                                last_choice = np.argmax(log[i][1]))
-                            img = pygame.image.load('last_frame.png')
-                            screen.fill((white))
-                            screen.blit(img,(0,0))
-                            pygame.display.flip()
-                            log.append(log_i)
-                        sphero.set_rgb(0, 0, 0x0F)
-    for sphero in spheros:
-        sphero.close()
+    # spheros = []
+    # with Kulka(addrs[0]) as sphero0:
+    #     print("Sphero 0 online!")
+    #     spheros.append(sphero0)
+    #     sphero0.set_rgb(0, 0, 0x0F)
+    #     with Kulka(addrs[1]) as sphero1:
+    #         print("Sphero 1 online!")
+    #         spheros.append(sphero1)
+    #         sphero1.set_rgb(0, 0, 0x0F)
+    with Kulka(addr) as sphero:
+        print("Sphero online!")
+        # spheros.append(sphero)
+        sphero.set_rgb(0, 0, 0x0F)
+        _ = input("Press Ctrl-D to abort, or any other key to continue training")
+        for _ in range(episodes):
+            # for sphero in spheros:
+            sphero.set_rgb(0xFF, 0xFF, 0xFF)
+            # sphero.set_rgb(0, 0, 0)
+            log = []
+            sphero.set_inactivity_timeout(300)
+            # cam = cam_setup(i = 1)
+            log_i = step_game(sphero, cam, e = 0.2, model = model)
+            img = pygame.image.load('last_frame.png')
+            screen.fill((white))
+            screen.blit(img,(0,0))
+            pygame.display.flip()
+            log.append(log_i)
+            for i in range(n-1):
+                log_i = step_game(sphero, cam, model = model, \
+                    last_input = np.array(log[i][0][0]).reshape(1,1200), \
+                    last_choice = np.argmax(log[i][1]))
+                img = pygame.image.load('last_frame.png')
+                screen.fill((white))
+                screen.blit(img,(0,0))
+                pygame.display.flip()
+                log.append(log_i)
+            sphero.set_rgb(0, 0, 0x0F)
+        # for sphero in spheros:
+    sphero.close()
     # cam_quit(cam)
-    # pickle.dump(model, open( "models/sphero_0.pkl", "wb" ) )
+    model.save("models/sphero_0_p.h5" )
+    print("Prime model saved")
 
 def one_image(i = 1):
     cam = cam_setup(i)
