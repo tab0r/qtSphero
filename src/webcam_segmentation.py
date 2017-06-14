@@ -86,7 +86,7 @@ def region_centroids(labelled_image, min_area = 20):
             centroids.append(centroid)
     return centroids
 
-def filter_regions(labelled_image, min_area = 3, max_area = 300):
+def filter_regions(labelled_image, min_area = 1, max_area = 150):
     filtered_labels = []
     for region in regionprops(labelled_image):
         # take regions with large enough areas
