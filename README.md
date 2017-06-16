@@ -54,6 +54,10 @@ With reinforcement learning, I've struggled to get good results on the large gri
 | --- | --- | --- |
 | ![RL1](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/three_stages_rl/trained_guided_rl_1.gif) | ![RL2](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/three_stages_rl/trained_guided_rl_2.gif) | ![RL3](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/three_stages_rl/trained_guided_rl_3.gif) |
 
+| 500,000 steps | Another 1,000,000! |
+| --- | --- |
+| ![RL1](https://github.com/thetabor/Neural.Swarms/blob/master/notes/images/rl_plots9x9_500000_2_4_Adam.png) | ![RL2](https://github.com/thetabor/Neural.Swarms/blob/master/notes/images/rl_plots9x9_1000000_3_4_Adam.png) |
+
 Here's a good examples of RL not working:
 
 | ~ 3 millions steps |
