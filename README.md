@@ -1,5 +1,5 @@
-# GoldStarSphero
--![Segmentation test](https://raw.githubusercontent.com/thetabor/Sphero.Swarms/master/image_processing/images/segmentation/sphero_seg2.png)
+# Neural.Sphero
+![Segmentation test](https://raw.githubusercontent.com/thetabor/Sphero.Swarms/master/image_processing/images/segmentation/sphero_seg2.png)
 
 An exploration of reinforcement learning with Deep-Q Networks using Sphero robotic balls.
 
@@ -18,6 +18,7 @@ The goals are behavioral in nature, rather than statistic.
 - [pygame](https://www.pygame.org/news): pygame.camera for webcam image capture
 - [Keras](https://keras.io/): Neural network frontend
 - [theano](https://github.com/Theano/Theano): Neural network backend
+- [TensorFlow](https://www.tensorflow.org/): Neural network backend
 
 Should run on most Unix (Linux, Mac) but probably not directly on Windows.
 Coded with Python 3.6 on Mac OS X and Lubuntu 16ish.
@@ -48,8 +49,3 @@ Using the [Neural.Swarms](https://github.com/thetabor/Neural.Swarms) simulation 
 - Training program
 - Computer vision
 - Decision making
-
-# Just for fun, pictures of me testing the CV
--![Game test](https://raw.githubusercontent.com/thetabor/Sphero.Swarms/master/notes/game_test_0.png)
--![Game test](https://raw.githubusercontent.com/thetabor/Sphero.Swarms/master/notes/game_test_1.png)
--![Game test](https://raw.githubusercontent.com/thetabor/Sphero.Swarms/master/notes/game_test_2.png)
