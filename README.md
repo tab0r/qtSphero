@@ -1,3 +1,6 @@
+[Supervisedlearningcurve]: https://github.com/thetabor/Neural.Swarms/blob/master/notes/images/supervised_curve_0.png
+{:width="400px"}
+
 # Neural.Sphero
 ![Segmentation test](https://raw.githubusercontent.com/thetabor/Sphero.Swarms/master/image_processing/images/segmentation/sphero_seg2.png)
 
@@ -52,7 +55,7 @@ The supervised network learns from the deterministic strategy on the left, and e
 
 | Typical supervised learning curve |
 | --- |
-|![Supervised learning curve](https://github.com/thetabor/Neural.Swarms/blob/master/notes/images/supervised_curve_0.png){:width="400px"}|
+|![Supervisedlearningcurve]|
 
 This also means that the supervised learner is limited by the strategy it learns from. So, enter *reinforcement learning*!
 
