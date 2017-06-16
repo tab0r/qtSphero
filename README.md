@@ -44,11 +44,17 @@ Coded with Python 3.6 on Mac OS X and Lubuntu 16ish.
 
 Using the [Neural.Swarms](https://github.com/thetabor/Neural.Swarms) simulation engine I can implement either supervised or reinforcement learning. Here we see how quickly the supervised learner can perform well on the simple task. In contrast, the reinforcement learner struggles to perform well, but it is does show potential. Here are some examples of simulation performance:
 
-| Deterministic Strategy | Almost trained supervised model | Trained supervised | Typical supervised learning curve
-| --- | --- | --- | --- |
-| ![Deterministic](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/deterministic_strategy_test.gif) | ![Almost trained](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/supervised/slight_undertrained_supervised.gif) | ![Fully trained](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/supervised/trained_supervised.gif) | ![Supervised learning curve](https://github.com/thetabor/Neural.Swarms/blob/master/notes/images/supervised_curve_0.png) |
+| Deterministic Strategy | Almost trained supervised model | Trained supervised |
+| --- | --- | --- |
+| ![Deterministic](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/deterministic_strategy_test.gif) | ![Almost trained](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/supervised/slight_undertrained_supervised.gif) | ![Fully trained](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/supervised/trained_supervised.gif) |
 
-The supervised network learns from the deterministic strategy on the left, and eventually learns to mimic it perfectly. This also means that the supervised learner is limited by the strategy it learns from. So, enter *reinforcement learning*!
+The supervised network learns from the deterministic strategy on the left, and eventually learns to mimic it perfectly.
+
+| Typical supervised learning curve |
+| --- |
+|![Supervised learning curve](https://github.com/thetabor/Neural.Swarms/blob/master/notes/images/supervised_curve_0.png)|
+
+This also means that the supervised learner is limited by the strategy it learns from. So, enter *reinforcement learning*!
 
 Reinforcement learning allows the agent to explore strategies on its own, and by receiving rewards from its environment, learns which are better. With reinforcement learning, I've struggled to get good results on the large grid, so I focused on a small game for now.
 
