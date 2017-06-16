@@ -1,6 +1,3 @@
-[Supervisedlearningcurve]: https://github.com/thetabor/Neural.Swarms/blob/master/notes/images/supervised_curve_0.png
-{: height="300px" width="300px"}
-
 # Neural.Sphero
 ![Segmentation test](https://raw.githubusercontent.com/thetabor/Sphero.Swarms/master/image_processing/images/segmentation/sphero_seg2.png)
 
@@ -47,37 +44,58 @@ Coded with Python 3.6 on Mac OS X and Lubuntu 16ish.
 
 Using the [Neural.Swarms](https://github.com/thetabor/Neural.Swarms) simulation engine I can implement either supervised or reinforcement learning. Here we see how quickly the supervised learner can perform well on the simple task. In contrast, the reinforcement learner struggles to perform well, but it is does show potential. Here are some examples of simulation performance:
 
-| Deterministic Strategy | Almost trained supervised model | Trained supervised |
-| --- | --- | --- |
-| ![Deterministic](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/deterministic_strategy_test.gif) | ![Almost trained](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/supervised/slight_undertrained_supervised.gif) | ![Fully trained](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/supervised/trained_supervised.gif) |
+| Deterministic Strategy | Almost trained supervised model | Trained supervised | Typical supervised learning curve |
+| --- | --- | --- | --- |
+| ![Deterministic](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/deterministic_strategy_test.gif) | ![Almost trained](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/supervised/slight_undertrained_supervised.gif) | ![Fully trained](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/supervised/trained_supervised.gif) | ![Supervised learning curve](https://github.com/thetabor/Neural.Swarms/blob/master/notes/images/supervised_curve_0.png)|
 
 The supervised network learns from the deterministic strategy on the left, and eventually learns to mimic it perfectly.
 
-| Typical supervised learning curve |
-| --- |
-|![Supervisedlearningcurve]|
-
-This also means that the supervised learner is limited by the strategy it learns from. So, enter *reinforcement learning*!
-
-Reinforcement learning allows the agent to explore strategies on its own, and by receiving rewards from its environment, learns which are better. With reinforcement learning, I've struggled to get good results on the large grid, so I focused on a small game for now.
+This also means that the supervised learner is limited by the strategy it learns from. So, enter **reinforcement learning**! Reinforcement learning allows the agent to explore strategies on its own, and by receiving rewards from its environment, learns which are better. With reinforcement learning, I've struggled to get good results on the large grid, so I focused on a small game at first.
 
 | RL early training | RL mid training | RL late training |
 | --- | --- | --- |
 | ![RL1](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/three_stages_rl/trained_guided_rl_1.gif) | ![RL2](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/three_stages_rl/trained_guided_rl_2.gif) | ![RL3](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/three_stages_rl/trained_guided_rl_3.gif) |
 
-Above we see the progression of the agents learning. In the first, it had seen about 50,000 game steps. The next was an additional 500,000, and the final saw  another 1,000,000 steps. By contrast, the supervised learner above only required about 10,000 steps to achieve nearly-perfect imitation of the deterministic strategy. So why bother with reinforcement learning? I discuss below. First, here are some very noisy charts from the middle and right hand training cycles.
+Above we see the progression of the agents learning. In the first, it had seen about 50,000 game steps. The next was an additional 500,000, and the final saw  another 1,000,000 steps. By contrast, the supervised learner above only required about 10,000 steps to achieve nearly-perfect imitation of the deterministic strategy. So why bother with reinforcement learning? I'll revisit that issue. First, here are some very noisy charts from the middle and right hand training cycles, and then some actual discussion of the Sphero.
 
 | 500,000 steps | Another 1,000,000! |
 | --- | --- |
 | ![RL1](https://github.com/thetabor/Neural.Swarms/blob/master/notes/images/rl_plots9x9_500000_2_4_Adam.png) | ![RL2](https://github.com/thetabor/Neural.Swarms/blob/master/notes/images/rl_plots9x9_1000000_3_4_Adam.png) |
 
-Here's a good example of RL not working:
+# Deploying to Sphero
 
-| ~ 3 millions steps |
-| :---: |
-| ![RL1](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/bad_rl/RL_after_12_rounds.gif) |
-| Final 1,000,000 steps of training |
-| ![sadchart](https://github.com/thetabor/Neural.Sphero/blob/master/notes/rl_plots9x9_1000000_3_4_Adam.png) |
+With a good supervised model, and some progress on RL, I wanted to get my agents controlling the robot as soon as possible. To say it's easier said than done... Is an understatement. The first challenge was getting a connection to Sphero in Python; something Sphero's tech support will insist is not possible. Thankfully, people love doing things that are not possible, and the [kulka](https://github.com/karol-szuster/kulka) library provided everything I needed to send commands to Sphero. I added a data polling function to it (see my fork of [kulka](https://github.com/thetabor/kulka)). But, this didn't get me very far. Without full sensor streaming, the data was too limited to get where I wanted, and in the timeline of this project, I needed good sensor data without having to learn a new technology, so I switched to computer vision.
+
+# Computer vision
+
+This is not a field which particularly interests me, there are plenty of brilliant, talented, minds working on it, and the theory is too convoluted (heh) to really interest me. Thankfully, those brilliant, talented minds provide cool things like [SKImage](http://scikit-image.org/). In '''src/webcam_segmentation/py''' you'll find the methods I used, all very standard packages in the SKImage library. With a filter and blob detection, I found the Sphero in the images reliably enough. The filtered image became my neural network inputs for some tests, and in other tests I just used the coordinate as inputs.
+
+| Equalizations | Histogram Equalizations | Hole Filtering | Contrast Adjustment | Canny Filtering |
+| --- | --- | --- | --- |
+| ![eq](https://github.com/thetabor/Neural.Sphero/blob/master/image_processing/images/filtering/eq_test.png) | ![hist_eq](https://github.com/thetabor/Neural.Sphero/blob/master/image_processing/images/filtering/hist_eq_test.png) | ![hole](https://github.com/thetabor/Neural.Sphero/blob/master/image_processing/images/filtering/hole_filtering_test.png) | ![contrast](https://github.com/thetabor/Neural.Sphero/blob/master/image_processing/images/filtering/contrast_adjustment.png) | ![canny](https://github.com/thetabor/Neural.Sphero/blob/master/image_processing/images/filtering/canny_filter_test.png) |
+
+Ultimately, gamma correction on a massively downsampled image provided a consistent enough reading for both neural network inputs and for scoring the agent. 
+
+# Why reinforcement learning?
+
+While I struggled to get my RL agents to perform as well their supervised counterparts, their versatility is evident. As we can see above, the supervised learner achieves the results of the deterministic strategy, and no more. Notice how it even follows the 45 degree lines used by the deterministic strategy. Theoretically, our RL agent could find the shorter "straight line" path. Additionally, if you can achieve your results with a deterministic strategy, why bother with a neural network at all?
+
+More specifically, in the context of running a Sphero, a deterministic strategy is possible, assuming something very important. When a Sphero turns on, it makes its current heading the "zero" heading. Assuming we know that direction relative to....
+
+# Base network architecture
+
+All work has been done with standard multi-layer perceptrons. The beauty of reinforcement learning is that it doesn't require anything complicated in neural structure, simply the right reward system.
+
+I am exploring many kinds of inputs to my neural nets:
+
+- Coordinates of agent and goal (4 inputs)
+- Preprocessed 40x30 image (1200 inputs)
+- Image with coordinates (1202 - 1204 inputs)
+- N stacked coordinates (Nx2 inputs)
+
+In each case, I focus on training networks with no more than five layers, including input and output. The supervised learner performs very well with just two hidden layers with 20 neurons each, on any of the first three input types. So, I have no reason to build bigger networks until we see to limit of these networks under reinforcement learning.
+
+# Making a reinforcement learner learn faster(er)
 
 # Future sections
 - Base network architecture
