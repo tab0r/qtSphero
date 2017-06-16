@@ -52,13 +52,13 @@ The supervised network learns from the deterministic strategy on the left, and e
 
 | Typical supervised learning curve |
 | --- |
-|![Supervised learning curve](https://github.com/thetabor/Neural.Swarms/blob/master/notes/images/supervised_curve_0.png)|
+|![Supervised learning curve](https://github.com/thetabor/Neural.Swarms/blob/master/notes/images/supervised_curve_0.png =400x)|
 
 This also means that the supervised learner is limited by the strategy it learns from. So, enter *reinforcement learning*!
 
 Reinforcement learning allows the agent to explore strategies on its own, and by receiving rewards from its environment, learns which are better. With reinforcement learning, I've struggled to get good results on the large grid, so I focused on a small game for now.
 
-| Early training | Mid training | Late training |
+| RL early training | RL mid training | RL late training |
 | --- | --- | --- |
 | ![RL1](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/three_stages_rl/trained_guided_rl_1.gif) | ![RL2](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/three_stages_rl/trained_guided_rl_2.gif) | ![RL3](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/three_stages_rl/trained_guided_rl_3.gif) |
 
