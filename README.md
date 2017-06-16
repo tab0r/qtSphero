@@ -1,5 +1,5 @@
 [Supervisedlearningcurve]: https://github.com/thetabor/Neural.Swarms/blob/master/notes/images/supervised_curve_0.png
-{:width="300px"}
+{:height="300px" width="300px"}
 
 # Neural.Sphero
 ![Segmentation test](https://raw.githubusercontent.com/thetabor/Sphero.Swarms/master/image_processing/images/segmentation/sphero_seg2.png)
