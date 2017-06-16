@@ -70,9 +70,9 @@ With a good supervised model, and some progress on RL, I wanted to get my agents
 
 This is not a field which particularly interests me, there are plenty of brilliant, talented, minds working on it, and the theory is too convoluted (heh) to really interest me. Thankfully, those brilliant, talented minds provide cool things like [SKImage](http://scikit-image.org/). In '''src/webcam_segmentation/py''' you'll find the methods I used, all very standard packages in the SKImage library. With a filter and blob detection, I found the Sphero in the images reliably enough. The filtered image became my neural network inputs for some tests, and in other tests I just used the coordinate as inputs.
 
-| Equalizations | Histogram Equalizations | Hole Filtering | Contrast Adjustment | Canny Filtering |
-| --- | --- | --- | --- | --- |
-| ![eq](https://github.com/thetabor/Neural.Sphero/blob/master/image_processing/images/filtering/eq_test.png) | ![hist_eq](https://github.com/thetabor/Neural.Sphero/blob/master/image_processing/images/filtering/hist_eq_test.png) | ![hole](https://github.com/thetabor/Neural.Sphero/blob/master/image_processing/images/filtering/hole_filtering_test.png) | ![contrast](https://github.com/thetabor/Neural.Sphero/blob/master/image_processing/images/filtering/contrast_adjustment.png) | ![canny](https://github.com/thetabor/Neural.Sphero/blob/master/image_processing/images/filtering/canny_filter_test.png) |
+| Equalizations | Histogram Equalizations | Contrast Adjustment |
+| --- | --- | --- |
+| ![eq](https://github.com/thetabor/Neural.Sphero/blob/master/image_processing/images/filtering/eq_test.png) | ![hist_eq](https://github.com/thetabor/Neural.Sphero/blob/master/image_processing/images/filtering/hist_eq_test.png) | ![contrast](https://github.com/thetabor/Neural.Sphero/blob/master/image_processing/images/filtering/contrast_adjustment.png) |
 
 Ultimately, gamma correction on a massively downsampled image provided a consistent enough reading for both neural network inputs and for scoring the agent. This brings us too...
 
