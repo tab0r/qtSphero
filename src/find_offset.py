@@ -23,41 +23,49 @@ from keras.models import Sequential, load_model
 from keras.layers.core import Dense
 from keras.optimizers import sgd, RMSprop, Adagrad, Adam
 
+# this is a fixed speed for now
+global_speed = 25
+
 def dir_angle(state, goal = (20, 15)):
     dx = goal[0] - state[0]
     dy = goal[1] - state[1]
     if dy == 0: dy = 0.1
-    dir_angle = np.arctan(dx/dy)
-    if dy < 0: dir_angle += np.pi       
+    dir_angle = np.arctan2(dx, dy)
+    # if dy > 0: dir_angle += np.pi       
     return dir_angle
 
-def coord_offset(sphero, screen_coords):
-    '''Poll Sphero for coords, get differences (dx, dy)'''
-    pass
-
-def find_angle_offset(sphero, cam):
+def find_angle_offset(sphero, cam, depth = 0):
     '''Observe state, get screen coords (x1, y1), roll along zero, get (x2, y2). Calculate screen angle and return in radians'''
+    sphero.roll(0, 0)
     _ = capture_image(cam)
     labelled_image, image, _ = segment_photo_bmp()
     filtered_regions = filter_regions(labelled_image)
     coords_i = observe_state(filtered_regions)[0]
     sphero.set_rgb(0xFF, 0, 0)
-    sphero.roll(25, 0)
+    time.sleep(1)
+    sphero.roll(global_speed, 0)
 
     time.sleep(5)
+    sphero.roll(0, 0)
     _ = capture_image(cam)
     labelled_image, image, _ = segment_photo_bmp()
     filtered_regions = filter_regions(labelled_image)
     coords_o = observe_state(filtered_regions)[0]
-    dx,  dy = 0, 0
-
-    if dx*dx + dy*dy < 3:
-        # keep trying unitl we move far enough to get a good reading
-        sphero.roll(25, randint(0, 359))
-        dx = coords_i[0] - coords_o[0]
-        dy = np.max([0.01, coords_i[1] - coords_o[1]])
-
+    dx = coords_i[0] - coords_o[0]
+    dy = np.max([0.01, coords_i[1] - coords_o[1]])
     angle = np.arctan(float(dx)/dy)
+    if dy < 0: angle += np.pi
+
+    if dx*dx + dy*dy < 10:
+        # keep trying unitl we move far enough to get a good reading
+        sphero.set_rgb(0, 0, 0)
+        time.sleep(0.3)
+        sphero.set_rgb(0xFF, 0, 0)
+        sphero.roll(global_speed, randint(180, 359))
+        time.sleep(2)
+        sphero.roll(0, 0)
+        angle = find_angle_offset(sphero, cam, depth = depth + 1)
+
     sphero.set_rgb(0xFF, 0xFF, 0xFF)
     return angle
 
@@ -95,7 +103,8 @@ def observe_state(regions):
     output.append(distance)
     return output
 
-def observe_and_plot_state(regions, image, filename = "last_frame"):
+def observe_and_show_state(regions, image, screen):
+    # mode = "display", filename = "last_frame"
     '''
     IN: regions of an image, an image to display with it
     OUT: the position and goal of the Sphero
@@ -130,8 +139,8 @@ def observe_and_plot_state(regions, image, filename = "last_frame"):
         state = list(centroids[0])
         # state.extend(centroids[0])
         rad_angle = dir_angle(state)
-        dir_coords = (centroid[0] + 10*np.sin(rad_angle), 
-                        centroid[1] + 10*np.cos(rad_angle))
+        dir_coords = (centroid[0] + 5*np.sin(rad_angle), 
+                        centroid[1] + 5*np.cos(rad_angle))
         dir_arrow = mpatches.FancyArrowPatch(centroid, dir_coords, color = 'green')
         ax.add_patch(dir_arrow)
         if distance < 10.0:
@@ -156,8 +165,20 @@ def observe_and_plot_state(regions, image, filename = "last_frame"):
     plt.title(angle_str, loc="right")
     plt.tight_layout()
     # plt.show()
-    plt.savefig(filename + ".png")
+    #plt.savefig(filename + ".png")
+
+    canvas = agg.FigureCanvasAgg(fig)
+    canvas.draw()
+    renderer = canvas.get_renderer()
+    raw_data = renderer.tostring_rgb()    
     plt.close()
+
+    size = canvas.get_width_height()
+    surf = pygame.image.fromstring(raw_data, size, "RGB")
+    screen.blit(surf, (0,0))
+    pygame.display.flip()
+
+
     return output
 
 def step_train(sphero, cam, e = 0.1, angle_offset = 0, model = None, last_input = None, last_choice = None, display = True):
@@ -167,7 +188,7 @@ def step_train(sphero, cam, e = 0.1, angle_offset = 0, model = None, last_input 
     if display == False:
         data = observe_state(filtered_regions)
     else:
-        data = observe_and_plot_state(filtered_regions, image)
+        data = observe_and_show_state(filtered_regions, image)
     # print("CV data: ", data)
     # special sauce goes here
     if model!=None:
@@ -209,32 +230,35 @@ def step_train(sphero, cam, e = 0.1, angle_offset = 0, model = None, last_input 
             # our final direction output is the deterministically chosen direction plus an offset choice times 360/n, where n is the number of choices we gave the network. Hopefully, this stochastic method will have some positive results for four choices, then extend to a larger number.
             offset = (10 * offset_choice) + angle_offset
             direction = int(offset + dir_choice) % 360
-            speed = 20
-            sphero.roll(speed, direction)
+            # speed = 20
+            sphero.roll(global_speed, direction)
         time.sleep(0.5)
     return inputs, predicts, reward, distance
 
-def step_det(sphero, cam, angle_offset = 0, display = True):
+def step_det(sphero, cam, angle_offset = 0, display = True, screen = None):
     _ = capture_image(cam)
     labelled_image, image, _ = segment_photo_bmp()
     filtered_regions = filter_regions(labelled_image)
     if display == False:
         data = observe_state(filtered_regions)
     else:
-        data = observe_and_plot_state(filtered_regions, image)
+        data = observe_and_show_state(filtered_regions, image, screen)
     if sphero != None:
         coord_est = data[0]
         distance = dist_e(data[0], (20, 15))
         # dir choice is the angle in "camera space" to our target
         dir_choice = dir_angle(coord_est)
-        if distance > 10:
-            sphero.set_rgb(0xFF, 0, 0)
+        if distance > 5:
+            sphero.set_rgb(0xFF, 0xFF, 0xFF)
             direction = int((angle_offset+dir_choice)*float(180)/np.pi) % 360
-            speed = 20
-            sphero.roll(speed, direction)
-        time.sleep(0.5)
-        sphero.set_rgb(0, 0xFF, 0)
-    return coord_est, direction
+            # speed = global_speed
+            sphero.roll(global_speed, direction)
+        else:
+            direction = None
+            sphero.set_rgb(0, 0xFF, 0)
+        time.sleep(2)
+        sphero.roll(0, 0)
+    return coord_est, dir_choice, direction
 
 def baseline_model(optimizer = Adam(),
                     layers = [{"size":80,"activation":"relu"}]):
@@ -286,7 +310,7 @@ def play(cam, addr, n = 10, episodes = 10, mode = 0, display = True):
         # spheros.append(sphero)
         sphero.set_inactivity_timeout(300)
         sphero.set_rgb(0, 0, 0x0F)
-        _ = input("Press Ctrl-D to abort, or enter to continue")
+        _ = input("Press Ctrl-D to abort, or enter to continue\n")
         angle_offset = 0 #randint(0, 359)
         for epi in range(episodes):
             print("Beginning episode ", epi)
@@ -299,34 +323,44 @@ def play(cam, addr, n = 10, episodes = 10, mode = 0, display = True):
             if diff > 1.0/(1+epi): 
                 print("Updating offset to ", new_offset)
                 angle_offset = new_offset
+            print("\n***************************************")
             # sphero.set_rgb(0, 0, 0)
             log = []
             if mode != 2:
                 log_i = step_game(sphero, cam, e = 0.2, model = model, display = display)
             else:
-                log_i = step_det(sphero, cam, angle_offset, display = display)
-                print(log_i)
-            if display == True:
-                img = pygame.image.load('last_frame.png')
-                screen.fill((white))
-                screen.blit(img,(0,0))
-                pygame.display.flip()
+                log_i = step_det(sphero, cam, angle_offset, display, screen)
+                # print("Log output: ", log_i) 
+                print("Coords: ", log_i[0]) 
+                print("Angle to target: ", log_i[1]) 
+                print("Actual heading command: ", log_i[2])
+                print("***************************************************")
+            # if display == True:
+            #     img = pygame.image.load('last_frame.png')
+            #     screen.fill((white))
+            #     screen.blit(img,(0,0))
+            #     pygame.display.flip()
             log.append(log_i)
             for i in range(n-1):
                 time.sleep(2)
                 if mode != 2:
-                    log_i = step_game(sphero, cam, e = 0.2, model = model)
+                    log_i=step_game(sphero, cam, e = 0.2, model = model)
                 else:
-                    log_i = step_det(sphero, cam, angle_offset)
-                    print(log_i)
+                    log_i=step_det(sphero, cam, angle_offset, display, screen)
+                    # print("Log output: ", log_i)
+                print("Coords: ", log_i[0]) 
+                print("Angle to target (rads): ", log_i[1]) 
+                print("Actual heading command (deg): ", log_i[2])
+                print("***************************************************")
                 time.sleep(2)
-                if display == True:
-                    img = pygame.image.load('last_frame.png')
-                    screen.fill((white))
-                    screen.blit(img,(0,0))
-                    pygame.display.flip()
+                # if display == True:
+                #     img = pygame.image.load('last_frame.png')
+                #     screen.fill((white))
+                #     screen.blit(img,(0,0))
+                #     pygame.display.flip()
                 log.append(log_i)
             sphero.set_rgb(0, 0, 0xFF)
+            print("Episode complete\n")
             sphero.roll(randint(20, 50), randint(0,359))
             time.sleep(2)
        
@@ -354,24 +388,17 @@ def dry_run(cam, n = 10, episodes = 10):
         # sphero.set_inactivity_timeout(300)
         # cam = cam_setup(i = 1)
         model = None
-        _ = step_game(cam = cam, sphero = None, e = 0.2, model = model)
-        img = pygame.image.load('last_frame.png')
-        screen.fill((white))
-        screen.blit(img,(0,0))
-        pygame.display.flip()
+        _ = step_game(cam, None, e = 0.2, model = model)
         for i in range(n-1):
-            _ = step_game(cam = cam, sphero = None, model = model)
-            img = pygame.image.load('last_frame.png')
-            screen.fill((white))
-            screen.blit(img,(0,0))
-            pygame.display.flip()
+            _ = step_game(cam, None, e = 0.2 , model = model)
+
 
 def one_image(i = 1):
     cam = cam_setup(i)
     _ = capture_image(cam)
     labelled_image, image, _ = segment_photo_bmp()
     filtered_regions = filter_regions(labelled_image)
-    observe_and_plot_state(filtered_regions, image)
+    print(observe_state(filtered_regions))
     cam_quit(cam)
 
 
