@@ -48,9 +48,17 @@ Using the [Neural.Swarms](https://github.com/thetabor/Neural.Swarms) simulation 
 | --- | --- | --- |
 | ![Deterministic](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/deterministic_strategy_test.gif) | ![Almost trained](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/supervised/slight_undertrained_supervised.gif) | ![Fully trained](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/supervised/trained_supervised.gif) |
 
+With reinforcement learning, I've struggled to get good results on the large grid, so I focused on a small game for now.
+
 | Early training | Mid training | Late training |
 | --- | --- | --- |
-| ![RL1](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/three_stages_rl/trained_guided_rl_1.gif) | ![RL2](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/three_stages_rl/trained_guided_rl_2.gif) | ![RL3](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/three_stages_rl/trained_guided_rl_1.gif) |
+| ![RL1](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/three_stages_rl/trained_guided_rl_1.gif) | ![RL2](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/three_stages_rl/trained_guided_rl_2.gif) | ![RL3](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/three_stages_rl/trained_guided_rl_3.gif) |
+
+Here's a good examples of RL not working:
+
+| ~ 6 millions steps | Final 1,000,000 |
+| --- |
+| ![RL1](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/bad_rl/RL_after_12_rounds.gif) | ![sadchart](https://github.com/thetabor/Neural.Sphero/blob/master/notes/rl_plots9x9_1000000_3_4_Adam.png) |
 
 # Future sections
 - Base network architecture
