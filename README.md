@@ -52,7 +52,7 @@ The supervised network learns from the deterministic strategy on the left, and e
 
 | Typical supervised learning curve |
 | --- |
-|![Supervised learning curve](https://github.com/thetabor/Neural.Swarms/blob/master/notes/images/supervised_curve_0.png =400x)|
+|<img src= "https://github.com/thetabor/Neural.Swarms/blob/master/notes/images/supervised_curve_0.png",  width="400">|
 
 This also means that the supervised learner is limited by the strategy it learns from. So, enter *reinforcement learning*!
 
