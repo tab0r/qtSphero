@@ -26,7 +26,7 @@ Using the [Neural.Swarms](https://github.com/thetabor/Neural.Swarms) simulation 
 | --- | --- |
 | ![Deterministic](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/deterministic_strategy_test.gif) | ![Almost trained](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/supervised/slight_undertrained_supervised.gif) |
 | **Trained supervised** | **Supervised curve** |
-| ![Fully trained](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/supervised/trained_supervised.gif) | ![Supervised learning curve](https://github.com/thetabor/Neural.Swarms/blob/master/notes/images/supervised_curve_0.png) |
+| ![Fully trained](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/supervised/trained_supervised.gif) | ![Supervised learning curve](https://github.com/thetabor/Neural.Swarms/blob/master/NaviGame/supervised_curve_1.png) |
 
 The supervised network learns from the deterministic strategy on the left, and eventually learns to mimic it perfectly.
 
