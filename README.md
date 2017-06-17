@@ -22,10 +22,12 @@ The goals are behavioral in nature, rather than statistic.
 
 Using the [Neural.Swarms](https://github.com/thetabor/Neural.Swarms) simulation engine I can implement either supervised or reinforcement learning. Here we see how quickly the supervised learner can perform well on the simple task. In contrast, the reinforcement learner struggles to perform well, but it is does show potential. Here are some examples of simulation performance:
 
-| Deterministic Strategy | ![Deterministic](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/deterministic_strategy_test.gif) 
-| Almost trained supervised model | ![Almost trained](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/supervised/slight_undertrained_supervised.gif) 
-| Trained supervised | ![Fully trained](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/supervised/trained_supervised.gif)  
-| Supervised curve | ![Supervised learning curve](https://github.com/thetabor/Neural.Swarms/blob/master/notes/images/supervised_curve_0.png)
+| Description | Image |
+| --- | --- |
+| Deterministic Strategy | ![Deterministic](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/deterministic_strategy_test.gif) |
+| Almost trained supervised model | ![Almost trained](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/supervised/slight_undertrained_supervised.gif) |
+| Trained supervised | ![Fully trained](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/supervised/trained_supervised.gif) |
+| Supervised curve | ![Supervised learning curve](https://github.com/thetabor/Neural.Swarms/blob/master/notes/images/supervised_curve_0.png) |
 
 The supervised network learns from the deterministic strategy on the left, and eventually learns to mimic it perfectly.
 
