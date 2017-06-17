@@ -1,4 +1,4 @@
-# Neural.Sphero
+# Neural.Orb
 ![Segmentation test](https://raw.githubusercontent.com/thetabor/Sphero.Swarms/master/image_processing/images/segmentation/sphero_seg2.png)
 
 An exploration of reinforcement learning with Deep-Q Networks using Sphero robotic balls.
