@@ -10,28 +10,6 @@ The goals are behavioral in nature, rather than statistic.
 - **Navigation** : using reinforcement learning in a physical space
 - **Cooperation** : multiple agents move a target
 
-# Major utilities:
-
-- [Python.Swarms](https://github.com/elmar-hinz/Python.Swarms): Swarm simulation  
-- [kulka](https://github.com/karol-szuster/kulka): Sphero Python API
-- [SKImage](http://scikit-image.org/): Scikit Learn compatible image processing
-- [pygame](https://www.pygame.org/news): pygame.camera for webcam image capture
-- [Keras](https://keras.io/): Neural network frontend
-- [theano](https://github.com/Theano/Theano): Neural network backend
-- [TensorFlow](https://www.tensorflow.org/): Neural network backend
-
-Should run on most Unix (Linux, Mac) but probably not directly on Windows.
-Coded with Python 3.6 on Mac OS X and Lubuntu 16ish.
-
-# References
-
-- Excellent materials in Georgia Tech's [Reinforcement Learning](https://www.udacity.com/course/reinforcement-learning--ud600) course on Udacity.
-- Referencing Karpathy's blog in two places:
-    - [Keras Plays Catch](https://edersantana.github.io/articles/keras_rl/)
-    - [Pong from Pixels](http://karpathy.github.io/2016/05/31/rl/)
-- Nervanasys blog post (linked in Karpathy):
-    - [Deep Reinforcement Learning](https://www.nervanasys.com/demystifying-deep-reinforcement-learning/)
-
 # Agents, Environments, and Reinforcement Learning
 
 - **Agents**, in the context of machine learning, are a class of algorithms which make choices once deployed. These include everything from humble vacuum cleaners to stock-picking algorithms.
@@ -134,3 +112,25 @@ I'll continue to develop this as much as possible. I love the Sphero robot and t
 If the model can start training consistently, I can record the training runs, and start training the model offline. But, that will require a break in, as early data will be massively skewed by the randomly initialized DQN.
 
 Thank you again for reading this far! Have fun. :)
+
+# Major utilities:
+
+- [Python.Swarms](https://github.com/elmar-hinz/Python.Swarms): Swarm simulation  
+- [kulka](https://github.com/karol-szuster/kulka): Sphero Python API
+- [SKImage](http://scikit-image.org/): Scikit Learn compatible image processing
+- [pygame](https://www.pygame.org/news): pygame.camera for webcam image capture
+- [Keras](https://keras.io/): Neural network frontend
+- [theano](https://github.com/Theano/Theano): Neural network backend
+- [TensorFlow](https://www.tensorflow.org/): Neural network backend
+
+Should run on most Unix (Linux, Mac) but probably not directly on Windows.
+Coded with Python 3.6 on Mac OS X and Lubuntu 16ish.
+
+# References
+
+- Excellent materials in Georgia Tech's [Reinforcement Learning](https://www.udacity.com/course/reinforcement-learning--ud600) course on Udacity.
+- Referencing Karpathy's blog in two places:
+    - [Keras Plays Catch](https://edersantana.github.io/articles/keras_rl/)
+    - [Pong from Pixels](http://karpathy.github.io/2016/05/31/rl/)
+- Nervanasys blog post (linked in Karpathy):
+    - [Deep Reinforcement Learning](https://www.nervanasys.com/demystifying-deep-reinforcement-learning/)
