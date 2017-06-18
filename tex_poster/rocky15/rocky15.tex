@@ -54,9 +54,12 @@
 % Name and authors of poster/paper/research
 %-----------------------------------------------------------
 
-\title{\large Neural.Swarms and Neural.Orb: Experiments with Deep-Q Networks \normalsize}
-\author{\normalsize Tabor Henderson}
-\institute{\small Galvanize Denver
+\title{\large Exploring the role of gene interaction in idiopathic pulmonary fibrosis with exome sequencing \normalsize}
+\author{\normalsize Adam J Richards$^{1}$, Tasha Fingerlin$^{2}$, Ivana V. Yang$^{1}$, James E. Loyd$^{3}$, Debbie A. Nickerson$^{4}$, Elizabeth Blue$^{4}$, Karynne Patterson$^{4}$, and David A. Schwartz$^{1}$}
+\institute{\small $^{1}$University of Colorado Denver, CO, USA \\ 
+$^{2}$Colorado School of Public Health, CO, USA \\
+$^{3}$Vanderbilt University, TN, USA \\
+$^{4}$University of Washington, WA, USA \normalsize
 }
 
 %-----------------------------------------------------------
@@ -139,6 +142,18 @@
 	\begin{equation}
 	 z_{i} = \frac{f_{i}}{\sigma}
 	\end{equation}
+        $p$-values were then obtained according to $2\Phi(-|z_{i}|)$, where $\Phi$ is the normal CDF.  We controlled for multiple testing using the Benjamini and Hochberg FDR method \cite{Benjamini95}.
+       \begin{figure}
+           \begin{center}
+             \includegraphics[width=7in]{./figs/manhattan-diffs.png}
+           \end{center}
+           \begin{flushleft}\small{\color{darkblue}Figure 3: \color{black} Manhattan plot of the $p$-values based on frequency differences.  The top 15 variants are shown with the light oranges and blues indicating SNP and indels respectively.  The two drawn thresholds correspond to $0.001$ and $5*10e-08$.}\end{flushleft}.
+           \label{fig:manhattan} 
+           \end{figure}
+           \begin{tcolorbox}
+           Variants from the HLA region were were highly associated with disease along with several Mucin genes (MUC2, MUC6, and MUC16)
+          \end{tcolorbox} 
+          }
            \end{block}
     \end{column}
     
@@ -233,6 +248,12 @@
            \label{fig:manhattan}
        \end{table}
        }  
+     
+    \begin{block}{Discussion}
+          \rmfamily{
+          The gene-gene interactions are based on a proxy of classification potential or more specifically how much that classification potential is perturbed when the pair of variants are removed from the analysis.  Both the significant genes from these analyses as well as the significant interactions appear to be relevant to disease.  Because these are preliminary results, both corroboration with the literature as well as independent experiments will help shed light on the reliability of these predictions.  It is also important that these methods be carefully contrasted with count-based methods for determining individual variant significance. 
+          }
+         \end{block}
         \begin{block}{References}
         \tiny
          \rmfamily{\begin{thebibliography}{99}
