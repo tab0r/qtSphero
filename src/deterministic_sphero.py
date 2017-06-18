@@ -266,7 +266,7 @@ def play(cam, addr, n = 10, episodes = 10, mode = 0, display = True):
             time.sleep(2)
         print("Game over. Everyone wins!")
 
-def dry_run(cam, n = 10, episodes = 10):
+def dry_det_run(cam, n = 10, episodes = 10):
     pygame.display.init()
     screen = pygame.display.set_mode((800, 600))
     white = (255, 64, 64)

@@ -3,6 +3,7 @@ import matplotlib.patches as mpatches
 import pygame.camera
 import pygame.image
 import time
+import pdb
 
 from skimage import io, exposure
 from skimage.filters import threshold_otsu
@@ -26,14 +27,19 @@ def cam_quit(cam):
     cam.stop()
     pygame.camera.quit()
 
-def capture_image(cam):
+def capture_image(cam, filestr = None):
     t0 = time.time()
     # # capture image from webcam
     # pygame.camera.init()
     # cam = pygame.camera.Camera(pygame.camera.list_cameras()[0])
     # cam.start()
     img = cam.get_image()
-    pygame.image.save(img, "photo.bmp")
+    pdb.set_trace()
+    if filestr != None:
+        name = filestr + ".bmp"
+    else:
+        name = "photo.bmp" 
+    pygame.image.save(img, name)
 
     t1 = time.time()
     capture_time = t1-t0
