@@ -54,7 +54,8 @@ This is not a field which particularly interests me, there are plenty of brillia
 
 Ultimately, gamma correction (middle of right image) on a massively downsampled image provided a consistent enough reading for both neural network inputs and for scoring the agent. 
 
-| ![img1](https://github.com/thetabor/Neural.Orb/blob/master/notes/last_frame.png) | ![img2](https://github.com/thetabor/Neural.Orb/blob/master/notes/last_frame_archive_1.png) | ![img1](https://github.com/thetabor/Neural.Orb/blob/master/notes/last_frame_archive_2.png) |
+| --- | --- | --- |
+| ![img1](https://github.com/thetabor/Neural.Orb/blob/master/notes/last_frame.png) | ![img2](https://github.com/thetabor/Neural.Orb/blob/master/notes/last_frame_archive_1.png) | ![img3](https://github.com/thetabor/Neural.Orb/blob/master/notes/last_frame_archive_0.png) |
 
 This brings us too...
 
