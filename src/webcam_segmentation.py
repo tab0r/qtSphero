@@ -27,25 +27,24 @@ def cam_quit(cam):
     cam.stop()
     pygame.camera.quit()
 
-def capture_image(cam, filestr = None):
+def capture_image(cam, filestr = None, save = True):
     t0 = time.time()
     # # capture image from webcam
-    # pygame.camera.init()
-    # cam = pygame.camera.Camera(pygame.camera.list_cameras()[0])
-    # cam.start()
     img = cam.get_image()
-    pdb.set_trace()
-    if filestr != None:
-        name = filestr + ".bmp"
-    else:
-        name = "photo.bmp" 
-    pygame.image.save(img, name)
+    if save == True:
+        if filestr != None:
+            name = filestr + ".bmp"
+        else:
+            name = "photo.bmp" 
+        pygame.image.save(img, name)
 
-    t1 = time.time()
-    capture_time = t1-t0
-    # print("Image capture time: ", capture_time)
+        t1 = time.time()
+        capture_time = t1-t0
+        # print("Image capture time: ", capture_time)
 
-    return capture_time
+        return capture_time
+    else: 
+        return img
 
 def segment_photo_bmp():
     # begin timing
@@ -92,10 +91,11 @@ def region_centroids(labelled_image, min_area = 20):
             centroids.append(centroid)
     return centroids
 
-def filter_regions(labelled_image, min_area = 1, max_area = 150):
+def filter_regions(labelled_image, min_area = 1, max_area = 150, verbose = False):
     filtered_labels = []
     for region in regionprops(labelled_image):
         # take regions with large enough areas
+        if verbose == True: print("Region area: ", region.area)
         if (region.area >= min_area) and (region.area < max_area):
             filtered_labels.append(region)
     return filtered_labels
