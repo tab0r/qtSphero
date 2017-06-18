@@ -52,7 +52,11 @@ This is not a field which particularly interests me, there are plenty of brillia
 | --- | --- | --- |
 | ![eq](https://github.com/thetabor/Neural.Sphero/blob/master/image_processing/images/filtering/eq_test.png) | ![hist_eq](https://github.com/thetabor/Neural.Sphero/blob/master/image_processing/images/filtering/hist_eq_test.png) | ![contrast](https://github.com/thetabor/Neural.Sphero/blob/master/image_processing/images/filtering/contrast_adjustment.png) |
 
-Ultimately, gamma correction (middle of right image) on a massively downsampled image provided a consistent enough reading for both neural network inputs and for scoring the agent. This brings us too...
+Ultimately, gamma correction (middle of right image) on a massively downsampled image provided a consistent enough reading for both neural network inputs and for scoring the agent. 
+
+| ![img1](https://github.com/thetabor/Neural.Orb/blob/master/notes/last_frame.png) | ![img2](https://github.com/thetabor/Neural.Orb/blob/master/notes/last_frame_archive_1.png) | ![img1](https://github.com/thetabor/Neural.Orb/blob/master/notes/last_frame_archive_2.png) |
+
+This brings us too...
 
 # Rewards and sparsity
 
