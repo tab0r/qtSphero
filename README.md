@@ -139,6 +139,8 @@ All this progress made me wonder if Larry could handle a challenge...
 | --- | --- | --- |
 | ![Larry1](https://github.com/thetabor/Neural.Swarms/blob/master/NaviGame/larry/20000_x_15/larry_gif_11_plus_3x_60000x5_d.gif) | ![Larry2](https://github.com/thetabor/Neural.Swarms/blob/master/NaviGame/larry/20000_x_15/larry_gif_12_plus_3x_60000x5_e.gif) | ![Larry3](https://github.com/thetabor/Neural.Swarms/blob/master/NaviGame/larry/20000_x_15/larry_gif_14_larry_maze_d.gif)
 
+To conclude, reinforcement learning clearly works, and leaves flexibility to function of new challenges. I have yet to demonstrate this flexibility succeeding, though.
+
 # Technical difficulties
 
 Unfortunately, this is not a success story. It is an ongoing one, which I hope to make a success story.
