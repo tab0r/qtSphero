@@ -80,7 +80,7 @@ def observe(screen, cam, frames, choice = 0):
 		cam_img = capture_image(cam, None, False)
 		label_img, gamma, bw, seg_time = segment_surface(cam_img)
 		img = pygame.pixelcopy.make_surface(bw)
-		regions = filter_regions(label_img, min_area = 2000, max_area = 12000)
+		regions = filter_regions(label_img, min_area = 1000, max_area = 12000)
 			# , verbose = True)
 		centroids = []
 		for region in regions:
@@ -133,7 +133,7 @@ def parse_choice(choice):
 		direction = (90 * choice) % 360
 		return speed, direction
 
-def game_episode(kulka, cam, frames = 5, steps = 500, e = 0.1, model = None):
+def game_episode(kulka, cam, frames = 5, steps = 50, e = 0.1, model = None):
 	pygame.display.init()
 	screen = pygame.display.set_mode((640, 480))
 	screen.fill((WHITE))
@@ -188,20 +188,10 @@ def game_episode(kulka, cam, frames = 5, steps = 500, e = 0.1, model = None):
 		print("-------------End Step------------------")
 	return np.vstack(inputs), np.vstack(targets), np.array(losses), total_loss
 
-def play_game(dry = False, model = None, i = 0):
+def play_game(kulka = None, model = None, steps = 50):
 	cam = cam_setup(1)
 	t0 = time.time()
-	addrs = [
-		'68:86:E7:06:FD:1D',
-		'68:86:E7:07:07:6B',
-		'68:86:E7:08:0E:DF']
-	if dry == False:
-		with Kulka(addrs[i]) as kulka:
-			kulka.set_inactivity_timeout(300)
-			output = game_episode(kulka, cam, model = model, e = 0.9)
-	else:
-		kulka = None
-		output = game_episode(kulka, cam, model = model)
+	output = game_episode(kulka, cam, steps = steps, model = model, e = 0.5)
 	cam_quit(cam)
 	t1 = time.time()
 
@@ -233,23 +223,31 @@ def baseline_model(optimizer = Adam(), inputs = 11, outputs = 9,
     return model
 
 if __name__ == "__main__":
-	model = baseline_model()
-	if os.path.isfile("sphero_model.h5") == True:
-		print("Loading existing model")
-		model.load_weights("sphero_model.h5")
-	output = play_game(dry = False, model = model, i = 0)
-	i = 0
-	model.save("sphero_model.h5")
-	model_filestr = "autosaved_model_" + str(i) + ".h5"
-	data_filestr = "autosaved_data_" + str(i) + ".p"
-	while(os.path.isfile(model_filestr) == True):
-		i += 1
-		model_filestr = "autosaved_model_" + str(i) + ".h5"
-		data_filestr = "autosaved_data_" + str(i) + ".p"
-	if model != None:
-		replay_loss = model.train_on_batch(output[0], output[1])
-		model.save(model_filestr)
-	pickle.dump(output, open(data_filestr, "wb" ))
+	addrs = [
+		'68:86:E7:06:FD:1D',
+		'68:86:E7:07:07:6B',
+		'68:86:E7:08:0E:DF']
+	while True:
+		i = int(input("Enter Sphero #: "))
+		n = int(input("Enter number of steps: "))
+		model = baseline_model()
+		with Kulka(addrs[i]) as kulka:
+			if os.path.isfile("sphero_model.h5") == True:
+				print("Loading existing model")
+				model.load_weights("sphero_model.h5") 
+			output = play_game(kulka = kulka, model = model, steps = n)
+			i = 0
+			model.save("sphero_model.h5")
+			model_filestr = "autosaved_model_" + str(i) + ".h5"
+			data_filestr = "autosaved_data_" + str(i) + ".p"
+			while(os.path.isfile(model_filestr) == True):
+				i += 1
+				model_filestr = "autosaved_model_" + str(i) + ".h5"
+				data_filestr = "autosaved_data_" + str(i) + ".p"
+			if model != None:
+				replay_loss = model.train_on_batch(output[0], output[1])
+				model.save(model_filestr)
+			pickle.dump(output, open(data_filestr, "wb" ))
 
 
 # time for 100 frames was 4.191658973693848, so 25 fps. makes sense
