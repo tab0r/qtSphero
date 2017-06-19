@@ -133,7 +133,7 @@ def parse_choice(choice):
 		direction = (90 * choice) % 360
 		return speed, direction
 
-def game_episode(kulka, cam, frames = 5, steps = 100, e = 0.1, model = None):
+def game_episode(kulka, cam, frames = 5, steps = 500, e = 0.1, model = None):
 	pygame.display.init()
 	screen = pygame.display.set_mode((640, 480))
 	screen.fill((WHITE))
