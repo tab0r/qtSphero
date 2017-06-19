@@ -3,6 +3,24 @@
 
 An exploration of reinforcement learning with Deep-Q Networks using Sphero robotic balls.
 
+# Sections
+
+This readme is a bit long, but describes my development process to my current states.
+
+- Initial Goals
+- Agents, Environments, and Reinforcement Learning
+- Simulation
+- Deploying to Sphero
+- Computer vision
+- Rewards and sparsity
+- Why reinforcement learning?
+- Base network architecture
+- Making a reinforcement learner learn faster(er)
+- Simulations, reloaded
+- Technical difficulties
+- Major utilities
+- References
+
 # Initial Goals
 
 The goals are behavioral in nature, rather than statistic.
@@ -52,7 +70,7 @@ This is not a field which particularly interests me, there are plenty of brillia
 | --- | --- | --- |
 | ![eq](https://github.com/thetabor/Neural.Sphero/blob/master/image_processing/images/filtering/eq_test.png) | ![hist_eq](https://github.com/thetabor/Neural.Sphero/blob/master/image_processing/images/filtering/hist_eq_test.png) | ![contrast](https://github.com/thetabor/Neural.Sphero/blob/master/image_processing/images/filtering/contrast_adjustment.png) |
 
-Ultimately, gamma correction (middle of right image) on a massively downsampled image provided a consistent enough reading for both neural network inputs and for scoring the agent. 
+Ultimately, gamma correction (middle of right image) on a massively downsampled image provided a consistent enough reading for both neural network inputs and for scoring the agent.
 
 | ex. 1 | ex. 2 | ex. 3 |
 | --- | --- | --- |
@@ -96,6 +114,32 @@ Let's do it anyway.
 To be clear, the goal here to **get a Sphero to consistently navigate to the center of our camera view**. Accomplishing this opens up all kinds of possibilities for navigation and movement extensions that all other goals are sort of irrelevant. Accomplishing this goal involves solving the problem discussed in the [Deploying to Sphero](#Deploying-to-Shero) section. Ideally, we would be able to point the camera in different places, at many different angles, which makes the problem that much harder. If we had perfect alignment between our image and the Sphero zero angles, a deterministic strategy will work. So, we'll build a DQN which finds the offset angle needed for correct navigation.
 
 Hopefully.
+
+# Simulations, reloaded
+
+So far, I've established that I can get an agent to learn through reinforcements, and set up a training environment for Sphero that takes far too long. To really dig into speeding up learning, let's return to the simulated environment.
+
+When the DQN agent is initialized, it's output values are effectively random numbers, and training is very susceptible to local minima. So, we train using an explore/exploit ratio that decreases throughout the training session. Typically, it starts at 0.9, and ends at 0.1. Additionally, I can make some of the choices come from our deterministic strategy, to focus training on the "correct" routes. Third, we know that our deterministic strategy works, so why not use it? And, finally, a tolerance function can make the game easier or harder, to let's start with an easier game, then make it harder once the agent is doing well.
+
+With all this in mind, I built a new model. This model takes inputs as usual, the whole game screen. As outputs, it has the five usual outputs; up, down, left, right and stay, plus a new addition: use the deterministic strategy. So, for the simple games, all our DQN agent has to do is learn to always use the deterministic strategy. Once it learns this, then we can start exploring more complex problems. Meet Larry, the simple bundle of neurons:
+
+| Break In | More Training | Trained with harder game | Non-optimal paths
+| --- | --- | --- | --- |
+| ![Larry1](https://github.com/thetabor/Neural.Swarms/blob/master/NaviGame/larry/20000_x_15/larry_gif_00_20000x15.gif) | ![Larry2](https://github.com/thetabor/Neural.Swarms/blob/master/NaviGame/larry/20000_x_15/larry_gif_01_plus60000x5_a.gif) | ![img3](https://github.com/thetabor/Neural.Swarms/blob/master/NaviGame/larry/20000_x_15/larry_gif_07_plus_2x_60000x5_d.gif) |
+![img4](https://github.com/thetabor/Neural.Swarms/blob/master/NaviGame/larry/20000_x_15/larry_gif_09_plus_3x_60000x5_b.gif) |
+
+Larry was doing very well. These plots show how certain patterns recur in the course of training:
+
+| Break In | More Training | Training with harder game |
+| --- | --- | --- |
+| ![Larry1](https://github.com/thetabor/Neural.Swarms/blob/master/NaviGame/larry/20000_x_15/larry_plot_0_t5.png) | ![Larry2](https://github.com/thetabor/Neural.Swarms/blob/master/NaviGame/larry/20000_x_15/larry_plot_1_t5.png) | ![img3](https://github.com/thetabor/Neural.Swarms/blob/master/NaviGame/larry/20000_x_15/larry_plot_2_t2.png) |
+
+All this progress made me wonder if Larry could handle a challenge...
+
+| And he ran away screaming... | Training hasn't helped yet | Still works on simple games |
+| --- | --- | --- | --- |
+| ![Larry1](https://github.com/thetabor/Neural.Swarms/blob/master/NaviGame/larry/20000_x_15/larry_gif_11_plus_3x_60000x5_d.gif) | ![Larry2](https://github.com/thetabor/Neural.Swarms/blob/master/NaviGame/larry/20000_x_15/larry_gif_12_plus_3x_60000x5_e.gif) | ![img3](https://github.com/thetabor/Neural.Swarms/blob/master/NaviGame/larry/20000_x_15/larry_plot_2_t2.png) |
+![img4](https://github.com/thetabor/Neural.Swarms/blob/master/NaviGame/larry/20000_x_15/larry_gif_14_larry_maze_d.gif)
 
 # Technical difficulties
 
