@@ -136,9 +136,8 @@ Larry was doing very well. These plots show how certain patterns recur in the co
 All this progress made me wonder if Larry could handle a challenge...
 
 | And he ran away screaming... | Training hasn't helped yet | Still works on simple games |
-| --- | --- | --- | --- |
-| ![Larry1](https://github.com/thetabor/Neural.Swarms/blob/master/NaviGame/larry/20000_x_15/larry_gif_11_plus_3x_60000x5_d.gif) | ![Larry2](https://github.com/thetabor/Neural.Swarms/blob/master/NaviGame/larry/20000_x_15/larry_gif_12_plus_3x_60000x5_e.gif) | ![img3](https://github.com/thetabor/Neural.Swarms/blob/master/NaviGame/larry/20000_x_15/larry_plot_2_t2.png) |
-![img4](https://github.com/thetabor/Neural.Swarms/blob/master/NaviGame/larry/20000_x_15/larry_gif_14_larry_maze_d.gif)
+| --- | --- | --- |
+| ![Larry1](https://github.com/thetabor/Neural.Swarms/blob/master/NaviGame/larry/20000_x_15/larry_gif_11_plus_3x_60000x5_d.gif) | ![Larry2](https://github.com/thetabor/Neural.Swarms/blob/master/NaviGame/larry/20000_x_15/larry_gif_12_plus_3x_60000x5_e.gif) | ![Larry3](https://github.com/thetabor/Neural.Swarms/blob/master/NaviGame/larry/20000_x_15/larry_gif_14_larry_maze_d.gif)
 
 # Technical difficulties
 
