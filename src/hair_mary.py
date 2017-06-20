@@ -80,7 +80,7 @@ def observe(screen, cam, frames, choice = 0):
 		cam_img = capture_image(cam, None, False)
 		label_img, gamma, bw, seg_time = segment_surface(cam_img)
 		img = pygame.pixelcopy.make_surface(bw)
-		regions = filter_regions(label_img, min_area = 1000, max_area = 12000)
+		regions = filter_regions(label_img, min_area = 200, max_area = 6000)
 			# , verbose = True)
 		centroids = []
 		for region in regions:
@@ -230,24 +230,26 @@ if __name__ == "__main__":
 	while True:
 		i = int(input("Enter Sphero #: "))
 		n = int(input("Enter number of steps: "))
+		epi = int(input("Enter number of episodes: "))
 		model = baseline_model()
 		with Kulka(addrs[i]) as kulka:
-			if os.path.isfile("sphero_model.h5") == True:
-				print("Loading existing model")
-				model.load_weights("sphero_model.h5") 
-			output = play_game(kulka = kulka, model = model, steps = n)
-			i = 0
-			model.save("sphero_model.h5")
-			model_filestr = "autosaved_model_" + str(i) + ".h5"
-			data_filestr = "autosaved_data_" + str(i) + ".p"
-			while(os.path.isfile(model_filestr) == True):
-				i += 1
+			for _ in range(epi):
+				if os.path.isfile("sphero_model.h5") == True:
+					print("Loading existing model")
+					model.load_weights("sphero_model.h5") 
+				output = play_game(kulka = kulka, model = model, steps = n)
+				i = 0
+				model.save("sphero_model.h5")
 				model_filestr = "autosaved_model_" + str(i) + ".h5"
 				data_filestr = "autosaved_data_" + str(i) + ".p"
-			if model != None:
-				replay_loss = model.train_on_batch(output[0], output[1])
-				model.save(model_filestr)
-			pickle.dump(output, open(data_filestr, "wb" ))
+				while(os.path.isfile(model_filestr) == True):
+					i += 1
+					model_filestr = "autosaved_model_" + str(i) + ".h5"
+					data_filestr = "autosaved_data_" + str(i) + ".p"
+				if model != None:
+					replay_loss = model.train_on_batch(output[0], output[1])
+					model.save(model_filestr)
+				pickle.dump(output, open(data_filestr, "wb" ))
 
 
 # time for 100 frames was 4.191658973693848, so 25 fps. makes sense
