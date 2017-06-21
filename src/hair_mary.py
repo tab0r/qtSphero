@@ -72,7 +72,7 @@ def segment_surface(surface):
 	img_surf = (gray2rgb(image)*255*15).astype('uint8')
 	return label_image, img_surf, bw_surf, t2 - t0
 
-def observe(screen, cam, frames, choice = 0):
+def observe(screen, cam, frames, o_time = 3, choice = 0):
 	frame = []
 	distances = []
 	rewards = []
@@ -110,7 +110,7 @@ def observe(screen, cam, frames, choice = 0):
 		pygame.draw.circle(img, RED, (320, 240), 10, 5)
 		screen.blit(img,(0,0))
 		pygame.display.flip()
-		time.sleep(3/frames)
+		time.sleep(o_time/frames)
 		# print(len(centroids), centroids)	
 	print("************************************************************")
 	m_dist = np.mean(distances)
@@ -133,7 +133,7 @@ def parse_choice(choice):
 		direction = (90 * choice) % 360
 		return speed, direction
 
-def game_episode(kulka, cam, frames = 5, steps = 50, e = 0.1, model = None):
+def game_episode(kulka, cam, frames = 5, steps = 50, e = 0.1, model = None, t_Lim = None):
 	pygame.display.init()
 	screen = pygame.display.set_mode((640, 480))
 	screen.fill((WHITE))
@@ -164,7 +164,12 @@ def game_episode(kulka, cam, frames = 5, steps = 50, e = 0.1, model = None):
 				print("Connection lost, model saved if exists")
 				# return log so far
 				break
-		frame, reward, distance = observe(screen, cam, frames, choice)
+		frame, reward, distance = observe(screen=screen, cam=cam, frames=frames, o_time=t_Lim, choice=choice)
+		if kulka != None:
+			try:
+				kulka.roll(0, direction)
+			except:
+				pass
 		if (model == None) or (np.random.random() < e):
 			new_predicts = np.array([np.random.random() for _ in range(9)]).reshape(1,9)
 		else:
@@ -188,10 +193,10 @@ def game_episode(kulka, cam, frames = 5, steps = 50, e = 0.1, model = None):
 		print("-------------End Step------------------")
 	return np.vstack(inputs), np.vstack(targets), np.array(losses), total_loss
 
-def play_game(kulka = None, model = None, steps = 50):
+def play_game(kulka = None, model = None, steps = 50, t_Lim = None):
 	cam = cam_setup(1)
 	t0 = time.time()
-	output = game_episode(kulka, cam, steps = steps, model = model, e = 0.5)
+	output = game_episode(kulka, cam, steps = steps, model = model, e = 0.5, t_Lim = t_Lim)
 	cam_quit(cam)
 	t1 = time.time()
 
@@ -230,6 +235,7 @@ if __name__ == "__main__":
 	while True:
 		i = int(input("Enter Sphero #: "))
 		n = int(input("Enter number of steps: "))
+		t = float(input("Enter a time limit for each step: "))
 		epi = int(input("Enter number of episodes: "))
 		model = baseline_model()
 		with Kulka(addrs[i]) as kulka:
@@ -237,7 +243,7 @@ if __name__ == "__main__":
 				if os.path.isfile("sphero_model.h5") == True:
 					print("Loading existing model")
 					model.load_weights("sphero_model.h5") 
-				output = play_game(kulka = kulka, model = model, steps = n)
+				output = play_game(kulka = kulka, model = model, steps = n, t_Lim = t)
 				i = 0
 				model.save("sphero_model.h5")
 				model_filestr = "models/autosaved_model_" + str(i) + ".h5"
