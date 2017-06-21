@@ -80,7 +80,7 @@ def observe(screen, cam, frames, choice = 0):
 		cam_img = capture_image(cam, None, False)
 		label_img, gamma, bw, seg_time = segment_surface(cam_img)
 		img = pygame.pixelcopy.make_surface(bw)
-		regions = filter_regions(label_img, min_area = 200, max_area = 6000)
+		regions = filter_regions(label_img, min_area = 100, max_area = 12000)
 			# , verbose = True)
 		centroids = []
 		for region in regions:
@@ -90,7 +90,7 @@ def observe(screen, cam, frames, choice = 0):
 			ctr = (minc + 0.5*(maxc - minc), minr + 0.5*(maxr - minr))
 			centroids.append(ctr)
 			pygame.draw.circle(img, GREEN, (int(ctr[1]), int(ctr[0])), 10, 5)
-			pygame.draw.circle(img, RED, (int(ctr[1]), int(ctr[0])), r, 5)
+			pygame.draw.circle(img, RED, (int(ctr[1]), int(ctr[0])), np.max([8, r]), 5)
 		# while len(centroids) < 4:
 		# 	centroids.append((0,0))
 		# centroids = centroids[0:4]
@@ -240,12 +240,12 @@ if __name__ == "__main__":
 				output = play_game(kulka = kulka, model = model, steps = n)
 				i = 0
 				model.save("sphero_model.h5")
-				model_filestr = "autosaved_model_" + str(i) + ".h5"
-				data_filestr = "autosaved_data_" + str(i) + ".p"
+				model_filestr = "models/autosaved_model_" + str(i) + ".h5"
+				data_filestr = "episodes/autosaved_data_" + str(i) + ".p"
 				while(os.path.isfile(model_filestr) == True):
 					i += 1
-					model_filestr = "autosaved_model_" + str(i) + ".h5"
-					data_filestr = "autosaved_data_" + str(i) + ".p"
+					model_filestr = "models/autosaved_model_" + str(i) + ".h5"
+					data_filestr = "episodes/autosaved_data_" + str(i) + ".p"
 				if model != None:
 					replay_loss = model.train_on_batch(output[0], output[1])
 					model.save(model_filestr)
