@@ -60,17 +60,22 @@ def train_model(model, folder_path, limit = 10, limit_mode = "time"):
                 mypath = folder_path
             filenames = [join(mypath, f) for f in listdir(mypath) if isfile(join(mypath, f))]
             choice = filenames[randint(0, len(filenames) - 1)]
-            output = pickle.load(open(choice, "rb"))
-            step_count += len(output[0])
-            print("input sample: ", output[0][0])
-            print("target sample: ", output[1][0])
-            if model != None:
-                replay_loss = model.train_on_batch(output[0], output[1])
-                losses.append(replay_loss)
-                model.save(model_filestr)
-                print("loss on replay training: ", replay_loss)
-            time.sleep(1)
-            t1 = time.time()
+            if choice == "episodes/.DS_Store":
+                pass
+            else:
+                print("Filename: ", choice)
+                output = pickle.load(open(choice, "rb"))
+                step_count += len(output[0])
+                print("input sample: ", output[0][0])
+                print("target sample: ", output[1][0])
+                if model != None:
+                    replay_loss = model.train_on_batch(output[0], output[1])
+                    losses.append(replay_loss)
+                    model_filestr = "offline_training_backup.h5"
+                    model.save(model_filestr)
+                    print("loss on replay training: ", replay_loss)
+                # time.sleep(1)
+                t1 = time.time()
         end_str = "Complete. Saw " + str(step_count) + " steps in " + str(count) \
                     + " episodes."
         print(end_str)
@@ -106,6 +111,6 @@ def baseline_model(optimizer = Adam(), inputs = 11, outputs = 9,
 if __name__ == "__main__":
     model = baseline_model()
     model.load_weights("sphero_model.h5")
-    replay_log = train_model(model = None, folder_path = None, limit = 0.25)
+    replay_log = train_model(model = model, folder_path = None, limit = 10)
     model.save("sphero_model.h5")
     # pickle.dump(open("replay_log.p", "wb"))
