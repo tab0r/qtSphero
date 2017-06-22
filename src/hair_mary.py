@@ -68,7 +68,7 @@ def segment_surface(surface):
 	seg_time = t2 - t1
 	# print("Segmentation time: ", t2 - t1)
 	bw_surf = (gray2rgb(bw)*255).astype('uint8')
-	# the factor of 15 is because of how small values we get from the exposure adjustment. Probly will need to be tweaked 
+	# the factor of 15 is because of how small values we get from the exposure adjustment. Probly will need to be tweaked
 	img_surf = (gray2rgb(image)*255*15).astype('uint8')
 	return label_image, img_surf, bw_surf, t2 - t0
 
@@ -111,8 +111,7 @@ def observe(screen, cam, frames, choice = 0):
 		screen.blit(img,(0,0))
 		pygame.display.flip()
 		time.sleep(3/frames)
-		# print(len(centroids), centroids)	
-	print("************************************************************")
+		# print(len(centroids), centroids)
 	m_dist = np.mean(distances)
 	print("mean distance: ", m_dist)
 	reward = np.mean(rewards)
@@ -236,7 +235,7 @@ if __name__ == "__main__":
 			for _ in range(epi):
 				if os.path.isfile("sphero_model.h5") == True:
 					print("Loading existing model")
-					model.load_weights("sphero_model.h5") 
+					model.load_weights("sphero_model.h5")
 				output = play_game(kulka = kulka, model = model, steps = n)
 				i = 0
 				model.save("sphero_model.h5")

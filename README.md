@@ -34,7 +34,7 @@ The goals are behavioral in nature, rather than statistic.
 - **Supervised Learning** is the standard method of many statistical models and neural networks. It requires an (X, y) style training set, with inputs and desired outputs. The training set becomes a limitation, as the agent will only perform as well as the data it learns from. That being said, we demonstrate supervised learning in the [Neural.Swarms](https://github.com/thetabor/Neural.Swarms) simulation. For the simple task of reaching a goal position in a deterministic environment, it performs very well after a short training period. We obtain data for this training from a deterministic strategy, so the neural network is limited to that performance level on the game. Simply adding a small barrier is enough to completely halt the network's strategy.
 - **Reinforcement Learning** allows us to train our algorithms with rewards. Rather than learning from an (X, y) training set, it learns from experience. Each experience comes with certain rewards, and each time a reward is received, the algorithm can learn.
 - **Deep-Q Networks** are a way to deploy reinforcement learning to neural networks. The network predicts Q-values for each action the network is allowed. A Q-value is a **quality** of a state, or the expected sum of rewards as we play the game from that state. We (almost) always select the max Q-value we predict.
-- **RL Data:** Initially, the agent has absolutely no knowledge of the environment, so Q-values are effectively random. At each step, it updates the Q-value using the actual reward, plus the Q-value of the next step it plans on taking. So, our model fits (X, y) data, but each y is actually self-generated and often very inaccurate. But since a part of it is ground truth, the model eventually learns something close enough to real Q-values to function.
+- **RL Data:** Initially, the agent has absolutely no knowledge of the environment, so Q-values are effectively random. At each step, it updates the Q-value using the actual reward, plus the Q-value of the next step it plans on taking. So, our model trains on (X, y) data, but each y is actually self-generated and often very inaccurate. But since a part of it is ground truth, the model eventually learns something close enough to real Q-values to function.
 
 # Simulation
 
@@ -46,7 +46,7 @@ Using the [Neural.Swarms](https://github.com/thetabor/Neural.Swarms) simulation 
 
 The supervised network learns from the deterministic strategy on the left, and eventually learns to mimic it perfectly.
 
-This also means that the supervised learner is limited by the strategy it learns from. So, enter **reinforcement learning**! Reinforcement learning allows the agent to explore strategies on its own, and by receiving rewards from its environment, learns which are better. With reinforcement learning, I've struggled to get good results on the large grid, so I focused on a small game at first.
+This also means that the supervised learner is limited by the strategy it learns from. So, enter **reinforcement learning**! Reinforcement learning allows the agent to explore strategies on its own, and by receiving rewards from its environment, learns which are better. With reinforcement learning, I've struggled to get good results on the large grid at first, so I focused on a small game.
 
 | RL early training | RL mid training | RL late training |
 | --- | --- | --- |
@@ -64,7 +64,7 @@ With a good supervised model, and some progress on RL, I wanted to get my agents
 
 # Computer vision
 
-This is not a field which particularly interests me, there are plenty of brilliant, talented, minds working on it, and the theory is too convoluted (heh) to really interest me. Thankfully, those brilliant, talented minds provide cool things like [SKImage](http://scikit-image.org/). In ```src/webcam_segmentation/py``` you'll find the methods I used, all very standard packages in the SKImage library. With a filter and blob detection, I found the Sphero in the images reliably enough. The filtered image became my neural network inputs for some tests, and in other tests I just used the coordinate as inputs.
+Computer vision was not something I wanted to take a deep dive into for this project. Thankfully, [SKImage](http://scikit-image.org/) includes plenty of easy to use algorithms. In ```src/webcam_segmentation/py``` you'll find the methods I used, all standard packages in the SKImage library. With a filter and blob detection, I found the Sphero in the images reliably enough. The filtered image became my neural network inputs for some tests, and in other tests I just used the coordinate as inputs. The final version showing promise uses coordinates from a set of five frames.
 
 | Equalizations | Histogram Equalizations | Contrast Adjustment |
 | --- | --- | --- |
@@ -101,19 +101,17 @@ I am exploring many kinds of inputs to my neural nets:
 - Coordinates of agent and goal (4 inputs)
 - Preprocessed 40x30 image (1200 inputs)
 - Image with coordinates (1202 - 1204 inputs)
-- not yet implemented: N stacked coordinates (Nx2 inputs)
+- N stacked coordinates (Nx2 inputs)
 
 In each case, I focus on training networks with no more than five layers, including input and output. The supervised learner performs very well with just two hidden layers with 20 neurons each, on any of the first three input types. So, I have no reason to build bigger networks until we see to limit of these networks under reinforcement learning.
 
 # Making a reinforcement learner learn faster(er)
 
-Given the issues above, I need to speed up the Sphero control model as much as possible. By taking advantage of deterministic strategies as much as possible, I attempt to get training time low enough to deploy physically. But, when a physical training step takes 5-10 seconds, performing enough of those steps to learn will be very, very time-intensive. So much so, the use of neural networks in this context becomes questionable.
+Given the issues above, I need to speed up the Sphero control model as much as possible. By taking advantage of deterministic strategies, I could speed up training agents in Neural.Swarms substantially. But, when a physical training step takes 3-4 seconds, performing enough of those steps to learn is time-intensive. So much so, the use of neural networks in this context becomes questionable.
 
 Let's do it anyway.
 
-To be clear, the goal here to **get a Sphero to consistently navigate to the center of our camera view**. Accomplishing this opens up all kinds of possibilities for navigation and movement extensions that all other goals are sort of irrelevant. Accomplishing this goal involves solving the problem discussed in the [Deploying to Sphero](#Deploying-to-Shero) section. Ideally, we would be able to point the camera in different places, at many different angles, which makes the problem that much harder. If we had perfect alignment between our image and the Sphero zero angles, a deterministic strategy will work. So, we'll build a DQN which finds the offset angle needed for correct navigation.
-
-Hopefully.
+To be clear, the goal here to **get a Sphero to consistently navigate to the center of our camera view**. Accomplishing this opens up all kinds of possibilities for navigation and movement extensions that all other goals are sort of irrelevant. Accomplishing this goal involves solving the problem discussed in the [Deploying to Sphero](#Deploying-to-Shero) section. Ideally, we would be able to point the camera in different places, at many different angles, which makes the problem that much harder. If we had perfect alignment between our image and the Sphero zero angles, a deterministic strategy will work. So, I tried build a DQN which finds the offset angle needed for correct navigation.
 
 # Simulations, reloaded
 
@@ -145,7 +143,7 @@ To conclude, reinforcement learning clearly works, and leaves flexibility to fun
 
 Unfortunately, this is not a success story. It is an ongoing one, which I hope to make a success story.
 
-Training a physical robot takes a lot of time, and depends on a lot of things. Progress is pretty much halted here. I cannot run training consistently and long enough to get positive results, but the backend is there. I haven't implemented use of N stacked coordinates, but I think that will give me something useful. This project taught me a lot, and I hope to continue development because I love the Sphero robot, and I think the applications to other robots will be awesome (quadcopter formations, anyone?). If you've read all this, thank you for you time. Here's a brief list of the reasons why I'm stopping here:
+Training a physical robot takes a lot of time, and depends on a lot of things. Progress is pretty much halted here. I cannot run training consistently and long enough to get positive results, but the backend is there. The use of N stacked coordinates allowed me to speed up the training program a lot, but I still couldn't get behavior I wanted out of it. This project taught me a lot, and I hope to continue development because I love the Sphero robot, and I think the applications to other robots will be awesome (quadcopter formations, anyone?). If you've read all this, thank you for you time. Here's a brief list of the reasons why I'm stopping here:
 
 - computer instability (training big neural nets can burn up your CPU)
 - no option to upload to a more powerful/stable machine
@@ -157,7 +155,7 @@ Training a physical robot takes a lot of time, and depends on a lot of things. P
 
 # Next steps and future sections
 
-I'll continue to develop this as much as possible. I love the Sphero robot and the possibilities it provides to the educational and open source communities. I'll continue to find ways to train the offset DQN as I feel it has a lot of potential. It also demonstrates a powerful method of model extension. In this case, I'm trying to extend a deterministic model with a reinforcement learning neural network, but the method applies to many kinds of models. Instead of a deterministic base, we could've use the supervised model I showed above. We could also have multiple deterministic models for the DQN to select from. Ultimately, developing an agent which can adapt means we need a system of model extension, and this project demonstrates a powerful method of doing that.
+I'll continue to develop this as much as possible. I love the Sphero robot and the possibilities it provides to the educational and open source communities.  I have many ideas for my method of model extension. In this case, we extended a deterministic model with a reinforcement learning neural network, but the method applies to many kinds of models. Instead of a deterministic base, we could've use the supervised model I showed above. We could also have multiple deterministic models for the DQN to select from. Ultimately, developing an agent which can adapt means we need a system of model extension, and this project demonstrates a method of doing that.
 
 If the model can start training consistently, I can record the training runs, and start training the model offline. But, that will require a break in, as early data will be massively skewed by the randomly initialized DQN.
 
@@ -178,9 +176,9 @@ Coded with Python 3.6 on Mac OS X and Lubuntu 16ish.
 
 # References
 
+- ![Playing Atari with Deep Reinforcement Learning](https://arxiv.org/abs/1312.5602)
 - Excellent materials in Georgia Tech's [Reinforcement Learning](https://www.udacity.com/course/reinforcement-learning--ud600) course on Udacity.
-- Referencing Karpathy's blog in two places:
-    - [Keras Plays Catch](https://edersantana.github.io/articles/keras_rl/)
-    - [Pong from Pixels](http://karpathy.github.io/2016/05/31/rl/)
+- [Keras Plays Catch](https://edersantana.github.io/articles/keras_rl/)
+- [Pong from Pixels](http://karpathy.github.io/2016/05/31/rl/)
 - Nervanasys blog post (linked in Karpathy):
     - [Deep Reinforcement Learning](https://www.nervanasys.com/demystifying-deep-reinforcement-learning/)
