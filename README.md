@@ -42,7 +42,7 @@ Using the [Neural.Swarms](https://github.com/thetabor/Neural.Swarms) simulation 
 
 | Deterministic Strategy | Almost trained supervised model | Trained supervised |
 | --- | --- | --- |
-| ![Deterministic](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/deterministic_strategy_test.gif) | ![Almost trained](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/supervised/slight_undertrained_supervised.gif) | ![Fully trained](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/supervised/trained_supervised.gif) |
+| ![Deterministic](https://github.com/thetabor/Neural.Swarms/blob/master/Notes/gifs/deterministic_strategy_test.gif) | ![Almost trained](https://github.com/thetabor/Neural.Swarms/blob/master/Notes/gifs/supervised/slight_undertrained_supervised.gif) | ![Fully trained](https://github.com/thetabor/Neural.Swarms/blob/master/Notes/gifs/supervised/trained_supervised.gif) |
 
 The supervised network learns from the deterministic strategy on the left, and eventually learns to mimic it perfectly.
 
@@ -50,13 +50,13 @@ This also means that the supervised learner is limited by the strategy it learns
 
 | RL early training | RL mid training | RL late training |
 | --- | --- | --- |
-| ![RL1](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/three_stages_rl/trained_guided_rl_1.gif) | ![RL2](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/three_stages_rl/trained_guided_rl_2.gif) | ![RL3](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/three_stages_rl/trained_guided_rl_3.gif) |
+| ![RL1](https://github.com/thetabor/Neural.Swarms/blob/master/Notes/gifs/three_stages_rl/trained_guided_rl_1.gif) | ![RL2](https://github.com/thetabor/Neural.Swarms/blob/master/Notes/gifs/three_stages_rl/trained_guided_rl_2.gif) | ![RL3](https://github.com/thetabor/Neural.Swarms/blob/master/Notes/gifs/three_stages_rl/trained_guided_rl_3.gif) |
 
 Above we see the progression of the agents learning. In the first, it had seen about 50,000 game steps. The next was an additional 500,000, and the final saw  another 1,000,000 steps. By contrast, the supervised learner above only required about 10,000 steps to achieve nearly-perfect imitation of the deterministic strategy. So why bother with reinforcement learning? I'll revisit that issue. First, here are some very noisy charts from the middle and right hand training cycles, and then some actual discussion of the Sphero.
 
 | 500,000 steps | Another 1,000,000! |
 | --- | --- |
-| ![RL1](https://github.com/thetabor/Neural.Swarms/blob/master/notes/images/rl_plots9x9_500000_2_4_Adam.png) | ![RL2](https://github.com/thetabor/Neural.Swarms/blob/master/notes/images/rl_plots9x9_1000000_3_4_Adam.png) |
+| ![RL1](https://github.com/thetabor/Neural.Swarms/blob/master/Notes/images/rl_plots9x9_500000_2_4_Adam.png) | ![RL2](https://github.com/thetabor/Neural.Swarms/blob/master/Notes/images/rl_plots9x9_1000000_3_4_Adam.png) |
 
 # Deploying to Sphero
 
@@ -121,23 +121,19 @@ When the DQN agent is initialized, it's output values are effectively random num
 
 With all this in mind, I built a new model. This model takes inputs as usual, the whole game screen. As outputs, it has the five usual outputs; up, down, left, right and stay, plus a new addition: use the deterministic strategy. So, for the simple games, all our DQN agent has to do is learn to always use the deterministic strategy. Once it learns this, then we can start exploring more complex problems. Meet Larry, the simple bundle of neurons:
 
-| Break In | More Training | Trained with harder game | Non-optimal paths |
-| --- | --- | --- | --- |
-| ![Larry1](https://github.com/thetabor/Neural.Swarms/blob/master/NaviGame/larry/20000_x_15/larry_gif_00_20000x15.gif) | ![Larry2](https://github.com/thetabor/Neural.Swarms/blob/master/NaviGame/larry/20000_x_15/larry_gif_01_plus60000x5_a.gif) | ![img3](https://github.com/thetabor/Neural.Swarms/blob/master/NaviGame/larry/20000_x_15/larry_gif_07_plus_2x_60000x5_d.gif) | ![img4](https://github.com/thetabor/Neural.Swarms/blob/master/NaviGame/larry/20000_x_15/larry_gif_09_plus_3x_60000x5_b.gif) |
+| Break In | More Training | Trained with harder game | Non-optimal paths | Doesn't like obstacles |
+| --- | --- | --- | --- | --- |
+| ![Larry1](https://github.com/thetabor/Neural.Swarms/blob/master/Notes/gifs/larry/01_break_in.gif) | ![Larry2](https://github.com/thetabor/Neural.Swarms/blob/master/Notes/gifs/larry/02_more_training.gif) | ![img3](https://github.com/thetabor/Neural.Swarms/blob/master/Notes/gifs/larry/03_harder_game.gif) | ![img4](https://github.com/thetabor/Neural.Swarms/blob/master/Notes/gifs/larry/04_non_optimal.gif) | ![img5](https://github.com/thetabor/Neural.Swarms/blob/master/Notes/gifs/larry/05_run_away.gif) |
 
-Larry was doing very well. These plots show how certain patterns recur in the course of training:
+All this progress made me wonder if Larry could handle a challenge, which led to the right hand animation. Unfortunately, the change in the environment was massive, and even after training with the obstacles didn't help. But, it did still work on the original simple task.
+
+These plots show how certain patterns recur in the course of training:
 
 | Break In | More Training | Training with harder game |
 | --- | --- | --- |
 | ![Larry1](https://github.com/thetabor/Neural.Swarms/blob/master/NaviGame/larry/20000_x_15/larry_plot_0_t5.png) | ![Larry2](https://github.com/thetabor/Neural.Swarms/blob/master/NaviGame/larry/20000_x_15/larry_plot_1_t5.png) | ![img3](https://github.com/thetabor/Neural.Swarms/blob/master/NaviGame/larry/20000_x_15/larry_plot_2_t2.png) |
 
-All this progress made me wonder if Larry could handle a challenge...
-
-| And he ran away screaming... | Training hasn't helped yet | Still works on simple games |
-| --- | --- | --- |
-| ![Larry1](https://github.com/thetabor/Neural.Swarms/blob/master/NaviGame/larry/20000_x_15/larry_gif_11_plus_3x_60000x5_d.gif) | ![Larry2](https://github.com/thetabor/Neural.Swarms/blob/master/NaviGame/larry/20000_x_15/larry_gif_12_plus_3x_60000x5_e.gif) | ![Larry3](https://github.com/thetabor/Neural.Swarms/blob/master/NaviGame/larry/20000_x_15/larry_gif_14_larry_maze_d.gif)
-
-To conclude, reinforcement learning clearly works, and leaves flexibility to function of new challenges. I have yet to demonstrate this flexibility succeeding, though.
+To conclude, reinforcement learning clearly works, and leaves flexibility to function of new challenges. I have yet to demonstrate this flexibility succeeding, with Sphero, anyway. Check out the [Neural.Swarms](https://github.com/thetabor/Neural.Swarms) for details on progress with more complex environments.
 
 # Technical difficulties
 
