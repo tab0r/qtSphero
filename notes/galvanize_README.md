@@ -42,7 +42,7 @@ Using the [Neural.Swarms](https://github.com/thetabor/Neural.Swarms) simulation 
 
 | Deterministic Strategy | Almost trained supervised model | Trained supervised |
 | --- | --- | --- |
-| ![Deterministic](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/deterministic_strategy_test.gif) | ![Almost trained](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/supervised/slight_undertrained_supervised.gif) | ![Fully trained](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/supervised/trained_supervised.gif) |
+| ![Deterministic](https://github.com/thetabor/Neural.Orb/blob/master/notes/gifs/deterministic_strategy_test.gif) | ![Almost trained](https://github.com/thetabor/Neural.Orb/blob/master/notes/gifs/supervised/slight_undertrained_supervised.gif) | ![Fully trained](https://github.com/thetabor/Neural.Orb/blob/master/notes/gifs/supervised/trained_supervised.gif) |
 
 The supervised network learns from the deterministic strategy on the left, and eventually learns to mimic it perfectly.
 
@@ -50,13 +50,13 @@ This also means that the supervised learner is limited by the strategy it learns
 
 | RL early training | RL mid training | RL late training |
 | --- | --- | --- |
-| ![RL1](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/three_stages_rl/trained_guided_rl_1.gif) | ![RL2](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/three_stages_rl/trained_guided_rl_2.gif) | ![RL3](https://github.com/thetabor/Neural.Swarms/blob/master/notes/gifs/three_stages_rl/trained_guided_rl_3.gif) |
+| ![RL1](https://github.com/thetabor/Neural.Orb/blob/master/notes/gifs/three_stages_rl/trained_guided_rl_1.gif) | ![RL2](https://github.com/thetabor/Neural.Orb/blob/master/notes/gifs/three_stages_rl/trained_guided_rl_2.gif) | ![RL3](https://github.com/thetabor/Neural.Orb/blob/master/notes/gifs/three_stages_rl/trained_guided_rl_3.gif) |
 
 Above we see the progression of the agents learning. In the first, it had seen about 50,000 game steps. The next was an additional 500,000, and the final saw  another 1,000,000 steps. By contrast, the supervised learner above only required about 10,000 steps to achieve nearly-perfect imitation of the deterministic strategy. So why bother with reinforcement learning? I'll revisit that issue. First, here are some very noisy charts from the middle and right hand training cycles, and then some actual discussion of the Sphero.
 
 | 500,000 steps | Another 1,000,000! |
 | --- | --- |
-| ![RL1](https://github.com/thetabor/Neural.Swarms/blob/master/notes/images/rl_plots9x9_500000_2_4_Adam.png) | ![RL2](https://github.com/thetabor/Neural.Swarms/blob/master/notes/images/rl_plots9x9_1000000_3_4_Adam.png) |
+| ![RL1](https://github.com/thetabor/Neural.Orb/blob/master/notes/rl_plots9x9_500000_2_4_Adam.png) | ![RL2](https://github.com/thetabor/Neural.Orb/blob/master/notes/rl_plots9x9_1000000_3_4_Adam.png) |
 
 # Deploying to Sphero
 
