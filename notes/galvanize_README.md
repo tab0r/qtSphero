@@ -123,19 +123,19 @@ With all this in mind, I built a new model. This model takes inputs as usual, th
 
 | Break In | More Training | Trained with harder game | Non-optimal paths |
 | --- | --- | --- | --- |
-| ![Larry1](https://github.com/thetabor/Neural.Swarms/blob/master/NaviGame/larry/20000_x_15/larry_gif_00_20000x15.gif) | ![Larry2](https://github.com/thetabor/Neural.Swarms/blob/master/NaviGame/larry/20000_x_15/larry_gif_01_plus60000x5_a.gif) | ![img3](https://github.com/thetabor/Neural.Swarms/blob/master/NaviGame/larry/20000_x_15/larry_gif_07_plus_2x_60000x5_d.gif) | ![img4](https://github.com/thetabor/Neural.Swarms/blob/master/NaviGame/larry/20000_x_15/larry_gif_09_plus_3x_60000x5_b.gif) |
+| ![Larry1](https://github.com/thetabor/Neural.Orb/blob/master/NaviGame/larry/20000_x_15/larry_gif_00_20000x15.gif) | ![Larry2](https://github.com/thetabor/Neural.Orb/blob/master/NaviGame/larry/20000_x_15/larry_gif_01_plus60000x5_a.gif) | ![img3](https://github.com/thetabor/Neural.Orb/blob/master/NaviGame/larry/20000_x_15/larry_gif_07_plus_2x_60000x5_d.gif) | ![img4](https://github.com/thetabor/Neural.Orb/blob/master/NaviGame/larry/20000_x_15/larry_gif_09_plus_3x_60000x5_b.gif) |
 
 Larry was doing very well. These plots show how certain patterns recur in the course of training:
 
 | Break In | More Training | Training with harder game |
 | --- | --- | --- |
-| ![Larry1](https://github.com/thetabor/Neural.Swarms/blob/master/NaviGame/larry/20000_x_15/larry_plot_0_t5.png) | ![Larry2](https://github.com/thetabor/Neural.Swarms/blob/master/NaviGame/larry/20000_x_15/larry_plot_1_t5.png) | ![img3](https://github.com/thetabor/Neural.Swarms/blob/master/NaviGame/larry/20000_x_15/larry_plot_2_t2.png) |
+| ![Larry1](https://github.com/thetabor/Neural.Orb/blob/master/NaviGame/larry/20000_x_15/larry_plot_0_t5.png) | ![Larry2](https://github.com/thetabor/Neural.Orb/blob/master/NaviGame/larry/20000_x_15/larry_plot_1_t5.png) | ![img3](https://github.com/thetabor/Neural.Orb/blob/master/NaviGame/larry/20000_x_15/larry_plot_2_t2.png) |
 
 All this progress made me wonder if Larry could handle a challenge...
 
 | And he ran away screaming... | Training hasn't helped yet | Still works on simple games |
 | --- | --- | --- |
-| ![Larry1](https://github.com/thetabor/Neural.Swarms/blob/master/NaviGame/larry/20000_x_15/larry_gif_11_plus_3x_60000x5_d.gif) | ![Larry2](https://github.com/thetabor/Neural.Swarms/blob/master/NaviGame/larry/20000_x_15/larry_gif_12_plus_3x_60000x5_e.gif) | ![Larry3](https://github.com/thetabor/Neural.Swarms/blob/master/NaviGame/larry/20000_x_15/larry_gif_14_larry_maze_d.gif)
+| ![Larry1](https://github.com/thetabor/Neural.Orb/blob/master/NaviGame/larry/20000_x_15/larry_gif_11_plus_3x_60000x5_d.gif) | ![Larry2](https://github.com/thetabor/Neural.Orb/blob/master/NaviGame/larry/20000_x_15/larry_gif_12_plus_3x_60000x5_e.gif) | ![Larry3](https://github.com/thetabor/Neural.Orb/blob/master/NaviGame/larry/20000_x_15/larry_gif_14_larry_maze_d.gif)
 
 To conclude, reinforcement learning clearly works, and leaves flexibility to function of new challenges. I have yet to demonstrate this flexibility succeeding, though.
 
