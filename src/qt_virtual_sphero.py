@@ -55,7 +55,7 @@ class Q_Learner():
         self.memory['choices'].append(choice) # store a'
         return choice # return a' to world
 
-class Game():
+class DistGame():
     # linear "navigation" game
     # agent starts at 0, must get to 10
     # agent chooses speed between 0 and 4
@@ -64,50 +64,132 @@ class Game():
     def __init__(self, max_speed = 5):
         # make the Q-learner
         self.max_speed = max_speed
-        self.player = Q_Learner(2*max_speed+1)
+        self.player = Q_Learner(max_speed)
         self.player.position = 0
 
+    def step(self, verbose = False):
+        # get state
+        state = self.player.position
+
+        # choose action
+        action = self.player.step(state)
+
+        # update state
+        movement = -1*self.max_speed
+        self.player.position += movement
+        s_prime = self.player.position
+
+        # give rewards
+        reward = 0
+        if s_prime == 0:
+            reward += 1
+        elif s_prime < 0:
+            reward += -100
+        else:
+            reward += -0.1
+        self.player.get_reward(reward)
+
+        # status update
+        if verbose == True:
+            # import pdb; pdb.set_trace()
+            print("Step %d, s: %d, a: %d, r: %.2f, s': %d" % (i, state, action, reward, s_prime))
+
     def play(self, verbose = False):
-        self.player.position = np.random.randint(10*self.max_speed) - 5*self.max_speed
+        self.player.position = np.random.randint(10*self.max_speed)
         for i in range(10):
-            # get state
-            state = self.player.position
-
-            # choose action
-            action = self.player.step(state)
-
-            # update state
-            movement = action - self.max_speed
-            self.player.position += movement
-            s_prime = self.player.position
-
-            # give rewards
-            reward = 0
-            if s_prime == 0:
-                reward += 1
-            elif np.abs(s_prime) > 20*self.max_speed:
-                reward += -100
-                self.player.get_reward(reward)
-                break
-            else:
-                reward += -0.1
-            self.player.get_reward(reward)
-
-            # status update
-            if verbose == True:
-                # import pdb; pdb.set_trace()
-                print("Step %d, s: %d, a: %d, r: %.2f, s': %d" % (i, state, action, reward, s_prime))
+            self.step(verbose)
         self.player.reset_memory()
         self.player.position = 0
 
+class AngleGame():
+    # angular "navigation" game
+    # agent starts at randint(0, 359), must get to 0
+    # agent chooses speed between 0 and max_speed
+    # reward is -0.01 for each step, 1 for each step at goal,
+    # game is 10 steps long
+    def __init__(self, max_speed = 5, directions = 36):
+        # make the Q-learner
+        self.max_speed = max_speed
+        self.player = Q_Learner(2*max_speed+1)
+        self.player.position = 0
+
+    def step(self, verbose = False):
+        # get state
+        state = self.player.position
+
+        # choose action
+        action = self.player.step(state)
+
+        # update state
+        movement = action - self.max_speed
+        self.player.position += movement
+        self.player.position = self.player.position % 36
+        s_prime = self.player.position
+
+        # give rewards
+        reward = 0
+        if s_prime == 0:
+            reward += 1
+        else:
+            reward += -0.1
+        self.player.get_reward(reward)
+
+        # status update
+        if verbose == True:
+            # import pdb; pdb.set_trace()
+            print("s: %d, a: %d, r: %.2f, s': %d" % (state, action, reward, s_prime))
+
+    def play(self, verbose = False):
+        self.player.position = np.random.randint(35)
+        for i in range(10):
+            self.step(verbose)
+        self.player.reset_memory()
+        self.player.position = 0
+
+class MultiGame():
+    # "navigation" game
+    # agent starts at randint(0, 10), randint(0, 359), must get to (0, 0)
+    # agent chooses speed between 0 and max_speed
+    # reward is -0.01 for each step, 1 for each step at goal,
+    # game is 10 steps long
+    def __init__(self, max_speed = 25, directions = 36):
+        # make the Q-learner(s)
+        self.max_speed = max_speed
+        self.angle = AngleGame(max_speed, directions)
+        self.distance = DistGame(max_speed)
+
+    def step(self, verbose = False):
+        state = (self.angle.player.position, self.distance.player.position)
+        self.angle.step()
+        self.distance.step()
+        s_prime = (self.angle.player.position, self.distance.player.position)
+        # status update
+        if verbose == True:
+            # import pdb; pdb.set_trace()
+            print("s: %s, s': %s" % (str(state), str(s_prime)))
+
+    def play(self, verbose = False):
+        self.angle.player.position = np.random.randint(360)
+        self.distance.player.position = np.random.randint(10*self.max_speed)
+        for i in range(10):
+            self.step(verbose)
+        self.angle.player.reset_memory()
+        self.distance.player.reset_memory()
+        self.angle.player.position = 0
+        self.distance.player.position = 0
+
 if __name__=='__main__':
     global_start_time = time.time()
-    game = Game(max_speed = 5)
-    for i in range(1000):
-        if (i+1)%100==1:
-            game.player.epsilon = 0
+    game = MultiGame()
+    episodes = 100000
+    for i in range(episodes):
+        if (i+1)%(episodes/100)==1:
+            game.angle.player.epsilon = 0
+            game.distance.player.epsilon = 0
             print("Game ", i+1)
             game.play(True)
-            game.player.epsilon = (2000 - i)/2000
+            epsilon = (2*episodes - i)/2*episodes
+            game.angle.epsilon = epsilon
+            game.distance.epsilon = epsilon
         else:
             game.play()
